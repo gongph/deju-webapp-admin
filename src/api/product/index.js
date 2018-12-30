@@ -14,3 +14,15 @@ export function getList(query) {
     params: query
   })
 }
+
+/**
+ * 新增产品
+ */
+
+export function addProduct(data) {
+  return request({
+    url: '/api/products',
+    method: 'post',
+    data
+  })
+}
