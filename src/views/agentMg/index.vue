@@ -11,13 +11,13 @@
     </el-form>
 
     <el-table v-loading="listLoading" :data="list" border fit highlight-current-row style="width: 100%">
-      <el-table-column align="center" label="ID" width="80">
-        <template slot-scope="scope">
-          <span>{{ scope.row.id }}</span>
-        </template>
-      </el-table-column>
+      <el-table-column
+        align="center"
+        type="index"
+        width="50"
+      />
 
-      <el-table-column align="center" label="代理商名称">
+      <el-table-column align="center" label="代理商">
         <template slot-scope="scope">
           <span>{{ scope.row.firstName }}</span>
         </template>
@@ -29,7 +29,13 @@
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="激活状态">
+      <el-table-column align="center" label="登录密码">
+        <template slot-scope="scope">
+          <span>{{ scope.row.login }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column align="center" label="是否激活">
         <template slot-scope="scope">
           <span v-if="scope.row.activated">激活</span>
           <span v-else>未激活</span>
@@ -48,22 +54,24 @@
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="最后修改人">
-        <template slot-scope="scope">
-          <span>{{ scope.row.lastModifiedBy }}</span>
-        </template>
-      </el-table-column>
-
-      <el-table-column align="center" label="最后修改时间">
-        <template slot-scope="scope">
-          <span>{{ scope.row.lastModifiedDate | parseTime('{y}-{m}-{d} {h}:{i}:{s}') }}</span>
-        </template>
-      </el-table-column>
-
       <el-table-column align="center" label="操作" width="240">
         <template slot-scope="scope">
-          <el-button type="primary" size="small" icon="el-icon-edit">编辑</el-button>
-          <el-button type="danger" size="small" icon="el-icon-delete">禁用</el-button>
+          <el-button
+            v-if="scope.row.activated"
+            type="danger"
+            size="small"
+            @click="handleDisabled(scope.row)"
+          >
+            <svg-icon icon-class="disabled"/> 禁用
+          </el-button>
+          <el-button
+            v-else
+            type="primary"
+            size="small"
+            icon="el-icon-circle-check-outline"
+            @click="handleActived(scope.row)"
+          >激活
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -71,19 +79,26 @@
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.pageSize" @pagination="getList" />
 
     <!-- 新增代理商弹框 -->
-    <el-dialog v-if="showMask" :visible.sync="showMask" :title="maskTitle" width="30%">
+    <el-dialog v-if="showMask" :visible.sync="showMask" :title="maskTitle" width="350px">
       <div class="dialog-form__wrapper">
-        <el-form ref="ruleForm" :model="ruleForm" label-width="90px">
-          <el-form-item label="代理商名称:">
-            <el-input v-model="ruleForm.agentName"/>
+        <el-form ref="ruleForm" :model="ruleForm" :rules="rule" label-width="100px">
+          <el-form-item label="代理商名字:" prop="firstName">
+            <el-input v-model="ruleForm.firstName" class="width-192" placeholder="代理商名字"/>
           </el-form-item>
 
-          <el-form-item label="登录账号:">
-            <el-input v-model="ruleForm.loginAccount"/>
+          <el-form-item label="登录账号:" prop="login">
+            <el-input v-model="ruleForm.login" class="width-192" placeholder="登录账号"/>
           </el-form-item>
 
-          <el-form-item label="登录密码:">
-            <el-input v-model="ruleForm.loginPassword"/>
+          <el-form-item label="默认密码:" prop="password">
+            <el-input v-model="ruleForm.password" class="width-192" placeholder="登录密码"/>
+          </el-form-item>
+
+          <el-form-item label="是否激活:">
+            <el-radio-group v-model="ruleForm.activated">
+              <el-radio :label="true">是</el-radio>
+              <el-radio :label="false">否</el-radio>
+            </el-radio-group>
           </el-form-item>
 
         </el-form>
@@ -112,9 +127,23 @@ export default {
         pageSize: 10
       },
       ruleForm: {
-        agentName: '',
-        loginAccount: '',
-        loginPassword: ''
+        firstName: '',
+        login: '',
+        password: '123456',
+        activated: true,
+        langKey: 'zh-cn',
+        email: 'someone@foxmail.com'
+      },
+      rule: {
+        firstName: [
+          { required: true, message: '必填项', trigger: 'blur' }
+        ],
+        login: [
+          { required: true, message: '必填项', trigger: 'blur' }
+        ],
+        password: [
+          { required: true, message: '必填项', trigger: 'blur' }
+        ]
       },
       showMask: false,
       maskTitle: '新增'
@@ -130,7 +159,6 @@ export default {
         page: 0,
         pageSize: 10
       }).then(response => {
-        console.log(response)
         this.list = response.data
         this.total = Number(response.headers['x-total-count']) || 0
         this.listLoading = false
@@ -146,9 +174,44 @@ export default {
     },
     handleAdd() {
       this.showMask = true
+      this.maskTitle = '新增'
+    },
+    modify(row) {
+      Api.modify(row).then(response => {
+        if (response.status === 200) {
+          this.getList()
+        }
+      })
+    },
+    handleActived(row) {
+      const r = JSON.parse(JSON.stringify(row))
+      r.activated = true
+      this.modify(r)
+    },
+    handleDisabled(row) {
+      const r = JSON.parse(JSON.stringify(row))
+      r.activated = false
+      this.modify(r)
     },
     submitForm(formName) {
-      //
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          Api.register(this.ruleForm).then(response => {
+            if (response.status === 201) {
+              this.$message({
+                message: '保存成功！',
+                type: 'success'
+              })
+              this.showMask = false
+              this.getList()
+            }
+          }).catch(err => {
+            console.error(err)
+          })
+        } else {
+          return false
+        }
+      })
     },
     resetForm() {
       this.showMask = false
@@ -158,5 +221,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  //
+  .width-192 {
+    max-width: 192px;
+  }
 </style>
