@@ -1,10 +1,10 @@
 <template>
   <div class="app-container">
     <panel-group @handleSetLineChartData="handleSetLineChartData"/>
-    <el-card class="box-card" header="快捷功能" shadow="never">
+    <!-- <el-card class="box-card" header="快捷功能" shadow="never">
       <el-button type="primary">添加产品</el-button>
       <el-button type="primary">添加代理商</el-button>
-    </el-card>
+    </el-card> -->
   </div>
 </template>
 

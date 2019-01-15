@@ -26,3 +26,14 @@ export function addProduct(data) {
     data
   })
 }
+
+/**
+ * 获取审核列表
+ */
+
+export function getAudits() {
+  return request({
+    url: '/api/application-infos',
+    method: 'get'
+  })
+}

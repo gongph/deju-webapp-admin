@@ -7,6 +7,7 @@
           <el-option :value="0" label="待审核"/>
           <el-option :value="1" label="未通过"/>
           <el-option :value="2" label="已通过"/>
+          <el-option :value="3" label="已完成"/>
         </el-select>
       </el-form-item>
 
@@ -24,52 +25,59 @@
 
       <el-table-column align="center" label="真实姓名:">
         <template slot-scope="scope">
-          <span>{{ scope.row.author }}</span>
+          <span>{{ scope.row.name }}</span>
         </template>
       </el-table-column>
 
       <el-table-column align="center" label="手机号码">
         <template slot-scope="scope">
-          <span>{{ scope.row.author }}</span>
+          <span>{{ scope.row.realNameMobilePhoneNumber }}</span>
         </template>
       </el-table-column>
 
       <el-table-column align="center" label="身份证号">
         <template slot-scope="scope">
-          <span>{{ scope.row.author }}</span>
+          <span>{{ scope.row.identityNumber }}</span>
         </template>
       </el-table-column>
 
       <el-table-column align="center" label="身份证正面照">
         <template slot-scope="scope">
-          <span>{{ scope.row.author }}</span>
+          <div class="image">
+            <img :src="'data:image/png;base64,' + scope.row.idCardFrontPhoto" @click="handleViewer($event)">
+          </div>
         </template>
       </el-table-column>
 
       <el-table-column align="center" label="身份证反面照">
         <template slot-scope="scope">
-          <span>{{ scope.row.author }}</span>
+          <div class="image">
+            <img :src="'data:image/png;base64,' + scope.row.idCardBackPhoto" @click="handleViewer($event)">
+          </div>
         </template>
       </el-table-column>
 
       <el-table-column align="center" label="审核状态">
         <template slot-scope="scope">
-          <span>待审核</span>
+          <span>{{ scope.row.orderStatus }}</span>
         </template>
       </el-table-column>
 
       <el-table-column align="center" label="录入时间">
         <template slot-scope="scope">
-          <span>{{ scope.row.timestamp | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+          <span>{{ scope.row.createdDate | parseTime('{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="操作" width="240">
+      <el-table-column align="center" label="操作" max-width="240">
         <template slot-scope="scope">
-          <el-button type="primary" size="small" icon="el-icon-view" @click="showMask = true">查看详细资料</el-button>
+          <template v-if="scope.row.orderStatus === '已通过' || scope.row.orderStatus === '已完成'">
+            <el-button type="primary" size="small" icon="el-icon-view" @click="showMask = true">详情</el-button>
+          </template>
+          
           <el-dropdown>
             <el-button type="primary" size="small">
-              审核<i class="el-icon-arrow-down el-icon--right"/>
+              {{ scope.row.orderStatus === '未审核' ? '初审' : '终审' }}<i class="el-icon-arrow-down el-icon--right"/>
             </el-button>
             <el-dropdown-menu slot="dropdown">
               <el-dropdown-item>通过</el-dropdown-item>
@@ -224,8 +232,11 @@
 </template>
 
 <script>
-import { fetchList } from '@/api/article'
+import { getAudits } from '@/api/product'
 import Pagination from '@/components/Pagination'
+import ViewerStyle from 'viewerjs/dist/viewer.min.css'
+import Viewer from 'viewerjs'
+
 export default {
   name: 'AuditList',
   components: { Pagination },
@@ -240,18 +251,19 @@ export default {
         status: 0
       },
       showMask: false,
-      activeNames: ['1']
+      viewer: null
     }
   },
   created() {
     this.getList()
+
   },
   methods: {
     getList() {
       this.listLoading = true
-      fetchList(this.listQuery).then(response => {
-        this.list = response.data.items
-        this.total = response.data.total
+      getAudits().then(response => {
+        this.list = response.data
+        //this.total = response.data.total
         this.listLoading = false
       })
     },
@@ -265,6 +277,32 @@ export default {
     },
     handleChange(val) {
       console.log(val)
+    },
+    handleViewer(evt) {
+      const viewer = new Viewer(evt.target, {
+        title: false,
+        navbar: false,
+        toolbar: {
+          zoomIn: 4,
+          zoomOut: 4,
+          oneToOne: 4,
+          reset: 4,
+          // prev: 4,
+          play: {
+            show: 4,
+            size: 'large',
+          },
+          // next: 4,
+          rotateLeft: 4,
+          rotateRight: 4,
+          flipHorizontal: 4,
+          flipVertical: 4,
+        },
+        viewed() {
+          viewer.zoomTo(1)
+        }
+      })
+      viewer.show(true)
     }
   }
 }
@@ -274,6 +312,13 @@ export default {
   .detail-info {
     .el-row + .el-row {
       margin-top: 20px;
+    }
+  }
+  .image {
+    cursor: pointer;
+    img {
+      width: 50px;
+      height: 50px;
     }
   }
 </style>
