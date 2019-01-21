@@ -89,3 +89,12 @@
     display: block
   }
 }
+
+// 审核页面弹框样式修复
+.audit-wrapper {
+  .el-dialog {
+    .el-dialog__body {
+      padding: 30px 20px 30px;
+    }
+  }
+}
