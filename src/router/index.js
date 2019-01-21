@@ -17,7 +17,7 @@ import productRouter from './modules/product'
 import agentRouter from './modules/agent'
 import auditRouter from './modules/audit'
 // import rateRouter from './modules/rate'
-// import bannerRouter from './modules/banner'
+import bannerRouter from './modules/banner'
 
 /** note: Submenu only appear when children.length>=1
  *  detail see  https://panjiachen.github.io/vue-element-admin-site/guide/essentials/router-and-nav.html
@@ -120,7 +120,7 @@ export const asyncRouterMap = [
   productRouter,
   agentRouter,
   auditRouter,
-  // bannerRouter,
+  bannerRouter,
   // {
   //   path: '/permission',
   //   component: Layout,

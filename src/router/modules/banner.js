@@ -18,6 +18,16 @@ const bannerRouter = {
         icon: 'component',
         roles
       }
+    },
+    {
+      path: '/banner/add',
+      component: () => import('@/views/bannerMg/add'),
+      name: 'ProductAdd',
+      meta: {
+        title: '添加产品',
+        icon: 'component',
+        roles
+      }
     }
   ]
 }
