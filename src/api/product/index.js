@@ -33,7 +33,7 @@ export function addProduct(data) {
 
 export function getAudits() {
   return request({
-    url: '/api/application-infos',
+    url: '/api/personal-informations',
     method: 'get'
   })
 }

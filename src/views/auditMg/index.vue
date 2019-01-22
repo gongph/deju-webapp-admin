@@ -43,13 +43,13 @@
 
       <el-table-column align="center" label="身份证正面照">
         <template slot-scope="scope">
-          <viewer :img-src="'data:image/png;base64,' + scope.row.idCardFrontPhoto"/>
+          <viewer :img-src="'data:' + scope.row.idCardFrontPhotoContentType + ';base64,' + scope.row.idCardFrontPhoto"/>
         </template>
       </el-table-column>
 
       <el-table-column align="center" label="身份证反面照">
         <template slot-scope="scope">
-          <viewer :img-src="'data:image/png;base64,' + scope.row.idCardBackPhoto"/>
+          <viewer :img-src="'data:' + scope.row.idCardBackPhotoContentType + ';base64,' + scope.row.idCardBackPhoto"/>
         </template>
       </el-table-column>
 
@@ -68,15 +68,15 @@
       <el-table-column align="center" label="操作" max-width="240">
         <template slot-scope="scope">
           <!-- <template v-if="scope.row.orderStatus === '已通过' || scope.row.orderStatus === '已完成'"> -->
-            <el-button
-              type="primary"
-              size="small"
-              icon="el-icon-view"
-              @click="showDetail">
-              详情
-            </el-button>
+          <el-button
+            type="primary"
+            size="small"
+            icon="el-icon-view"
+            @click="showDetail">
+            详情
+          </el-button>
           <!-- </template> -->
-          
+
           <el-dropdown>
             <el-button type="primary" size="small">
               {{ scope.row.orderStatus === '未审核' ? '初审' : '终审' }}
@@ -101,7 +101,7 @@
 
     <!-- 查看详情弹框 -->
     <el-dialog :visible.sync="showMask" title="申请人信息">
-      <apply-detail-info :data=""/>
+      <apply-detail-info :data="list"/>
     </el-dialog>
 
   </div>
@@ -141,7 +141,7 @@ export default {
       this.listLoading = true
       getAudits().then(response => {
         this.list = response.data
-        //this.total = response.data.total
+        // this.total = response.data.total
         this.listLoading = false
       })
     },
