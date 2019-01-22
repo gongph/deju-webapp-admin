@@ -8,13 +8,18 @@ const bannerRouter = {
   path: '/banners',
   component: Layout,
   redirect: '/banners/index',
+  name: 'Banners',
+  meta: {
+    title: 'Banner管理',
+    icon: 'component'
+  },
   children: [
     {
       path: 'index',
       component: () => import('@/views/bannerMg/index'),
       name: 'BannerList',
       meta: {
-        title: 'Banner管理',
+        title: 'Banner列表',
         icon: 'component',
         roles
       }
@@ -22,9 +27,9 @@ const bannerRouter = {
     {
       path: '/banner/add',
       component: () => import('@/views/bannerMg/add'),
-      name: 'ProductAdd',
+      name: 'BannerAdd',
       meta: {
-        title: '添加产品',
+        title: '添加Banner',
         icon: 'component',
         roles
       }

@@ -18,24 +18,30 @@
         type="index"
         width="50"
       />
-      <el-table-column align="center" label="轮播大图名称" width="20%">
+      <el-table-column align="center" label="轮播大图名称" >
         <template slot-scope="scope">
           <span>{{ scope.row.title }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="轮播大图描述" width="30%">
+      <el-table-column align="center" label="轮播大图描述">
         <template slot-scope="scope">
           <span>{{ scope.row.description }}</span>
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="图片" width="50%">
+      <el-table-column align="center" label="图片">
         <template slot-scope="scope">
           <template v-if="scope.row.url">
             <img :src="'data:' + scope.row.urlContentType + ';base64,' + scope.row.url" :alt="scope.row.description" width="50px;">
           </template>
           <template v-else>-</template>
+        </template>
+      </el-table-column>
+
+      <el-table-column align="center" label="操作" >
+        <template slot-scope="scope">
+          <el-button type="primary" class="edit-btn" size="small" icon="el-icon-edit" disabled>编辑</el-button>
         </template>
       </el-table-column>
     </el-table>

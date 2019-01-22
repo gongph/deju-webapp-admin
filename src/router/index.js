@@ -14,10 +14,10 @@ import Layout from '@/views/layout/Layout'
 
 /* 业务路由 */
 import productRouter from './modules/product'
+import bannerRouter from './modules/banner'
 import agentRouter from './modules/agent'
 import auditRouter from './modules/audit'
 // import rateRouter from './modules/rate'
-import bannerRouter from './modules/banner'
 
 /** note: Submenu only appear when children.length>=1
  *  detail see  https://panjiachen.github.io/vue-element-admin-site/guide/essentials/router-and-nav.html
@@ -118,9 +118,9 @@ export default new Router({
 
 export const asyncRouterMap = [
   productRouter,
+  bannerRouter,
   agentRouter,
   auditRouter,
-  bannerRouter,
   // {
   //   path: '/permission',
   //   component: Layout,
