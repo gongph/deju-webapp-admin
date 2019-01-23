@@ -30,10 +30,21 @@ export function addProduct(data) {
 /**
  * 获取审核列表
  */
-
 export function getAudits() {
   return request({
-    url: '/api/personal-informations',
+    url: '/api/application-infos',
     method: 'get'
+  })
+}
+
+/**
+ * 更新审核信息
+ * @param data
+ */
+export function updateAudits(data) {
+  return request({
+    url: '/api/application-infos',
+    method: 'put',
+    data
   })
 }
