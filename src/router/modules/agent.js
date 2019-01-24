@@ -15,7 +15,7 @@ const agentRouter = {
       name: 'AgentList',
       meta: {
         title: '代理商管理',
-        icon: 'component',
+        icon: 'peoples',
         roles
       }
     }

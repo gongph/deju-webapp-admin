@@ -11,7 +11,7 @@ const bannerRouter = {
   name: 'Banners',
   meta: {
     title: 'Banner管理',
-    icon: 'component'
+    icon: 'example'
   },
   children: [
     {
@@ -20,7 +20,7 @@ const bannerRouter = {
       name: 'BannerList',
       meta: {
         title: 'Banner列表',
-        icon: 'component',
+        icon: 'list',
         roles
       }
     },
@@ -30,7 +30,7 @@ const bannerRouter = {
       name: 'BannerAdd',
       meta: {
         title: '添加Banner',
-        icon: 'component',
+        icon: 'form',
         roles
       }
     }

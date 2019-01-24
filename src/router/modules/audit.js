@@ -15,7 +15,7 @@ const auditRouter = {
       name: 'AuditList',
       meta: {
         title: '审核管理',
-        icon: 'component',
+        icon: 'nested',
         roles
       }
     }

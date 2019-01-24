@@ -20,7 +20,7 @@ const productRouter = {
       name: 'ProductList',
       meta: {
         title: '产品列表',
-        icon: 'component',
+        icon: 'list',
         roles
       }
     },
@@ -30,7 +30,7 @@ const productRouter = {
       name: 'ProductAdd',
       meta: {
         title: '添加产品',
-        icon: 'component',
+        icon: 'form',
         roles
       }
     },
@@ -41,7 +41,7 @@ const productRouter = {
       name: 'ProductEdit',
       meta: {
         title: '编辑产品',
-        icon: 'component',
+        icon: 'edit',
         roles
       }
     }
