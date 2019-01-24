@@ -2,12 +2,14 @@
   <div class="app-container audit-wrapper">
     <el-form :inline="true" class="form-inline">
       <el-form-item label="审核状态:" clearable>
-        <el-select v-model="listQuery.status" placeholder="请选择">
+        <el-select v-model="listQuery.status" placeholder="请选择" @change="handleSelectChange">
           <el-option label="全部" value=""/>
-          <el-option :value="0" label="待审核"/>
-          <el-option :value="1" label="未通过"/>
-          <el-option :value="2" label="已通过"/>
-          <el-option :value="3" label="已完成"/>
+          <el-option
+            v-for="(item, $index) of status"
+            :key="$index"
+            :value="item[0]"
+            :label="item[1]"
+          />
         </el-select>
       </el-form-item>
 
@@ -71,7 +73,7 @@
             type="primary"
             size="small"
             icon="el-icon-view"
-            @click="showDetail(scope.$index, list)">
+            @click="showDetail(scope.row)">
             查看
           </el-button>
 
@@ -114,14 +116,34 @@ import { auditStatus } from '@/utils/auditStatus.js'
 import { deepClone } from '@/utils'
 
 const CONST = {
-  PENDING: 'PENDINGREVIEW',    // 待审核
-  FIRSTED: 'FIRSTTRIALPASSED', // 初审通过
-  FINALED: 'FINALTRIALPASSED', // 终审通过
+  PENDING  : 'PENDINGREVIEW',       // 待审核
+  FIRSTED  : 'FIRSTTRIALPASSED',    // 初审通过
+  FIRSTFAIL: 'FIRSTTRIALPASSED',    // 初审失败
+  FINALED  : 'FINALTRIALPASSED',    // 终审通过
+  FINALFAIL: 'FINALTRIALFAILURE'    // 终审失败
 }
 
 export default {
   name: 'AuditList',
   components: { Viewer, ApplyDetailInfo },
+  data() {
+    return {
+      list: [],
+      copyList: [],
+      total: 0,
+      listLoading: true,
+      listQuery: {
+        page: 1,
+        limit: 10,
+        status: ''
+      },
+      showMask: false,
+      // 基本信息
+      baseInfo: null,
+      // 详细信息
+      moreInfo: null
+    }
+  },
   directives: {
     shouldHide: {
       inserted: function (el, binding) {
@@ -134,21 +156,9 @@ export default {
       }
     }
   },
-  data() {
-    return {
-      list: [],
-      total: 0,
-      listLoading: true,
-      listQuery: {
-        page: 1,
-        limit: 10,
-        status: 0
-      },
-      showMask: false,
-      // 基本信息
-      baseInfo: null,
-      // 详细信息
-      moreInfo: null
+  computed: {
+    status () {
+      return Array.from(auditStatus) || []
     }
   },
   created() {
@@ -159,6 +169,8 @@ export default {
       this.listLoading = true
       getAudits().then(response => {
         this.list = response.data
+        // 用于数据筛选
+        this.copyList = response.data
         // this.total = response.data.total
         this.listLoading = false
       })
@@ -174,8 +186,24 @@ export default {
     handleChange(val) {
       console.log(val)
     },
-    showDetail(index, list) {
-      this.baseInfo = list[index]
+    handleSelectChange(val) {
+      this.filterList(val)
+    },
+    filterList(val) {
+      if (this.copyList.length <= 0) return
+      const copyList = this.copyList
+
+      if (!val) {
+        this.list = deepClone(copyList)
+      } else {
+        const arr = copyList.filter(item => {
+          return item.auditStatus === val
+        })
+        this.list = arr
+      }
+    },
+    showDetail(row) {
+      this.baseInfo = row
       this.showMask = true
     },
     /**
@@ -184,14 +212,25 @@ export default {
     handleCommand(command) {
       const auditFlag = command[0]
       const row = deepClone(command[1])
-
-      if (row.auditStatus === CONST.PENDING) {
-        row.auditStatus = CONST.FIRSTED
+      // 通过
+      if (auditFlag) {
+        if (row.auditStatus === CONST.PENDING) {
+          row.auditStatus = CONST.FIRSTED
+        } 
+        else if (row.auditStatus === CONST.FIRSTED) {
+          row.auditStatus = CONST.FINALED
+        }
       } 
-      else if (row.auditStatus === CONST.FIRSTED) {
-        row.auditStatus = CONST.FINALED
+      // 不通过
+      else {
+        if (row.auditStatus === CONST.PENDING) {
+          row.auditStatus = CONST.FIRSTFAIL
+        } 
+        else if (row.auditStatus === CONST.FIRSTED) {
+          console.log(2)
+          row.auditStatus = CONST.FINALFAIL
+        }
       }
-
       // 更新
       updateAudits(row).then(response => {
         if (response.status === 200) {
