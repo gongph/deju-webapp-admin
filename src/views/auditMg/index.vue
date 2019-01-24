@@ -25,37 +25,37 @@
 
       <el-table-column align="center" label="真实姓名:">
         <template slot-scope="scope">
-          <span>{{ scope.row.name }}</span>
+          <span>{{ scope.row.personalInformation.name }}</span>
         </template>
       </el-table-column>
 
       <el-table-column align="center" label="手机号码">
         <template slot-scope="scope">
-          <span>{{ scope.row.realNameMobilePhoneNumber }}</span>
+          <span>{{ scope.row.personalInformation.realNameMobilePhoneNumber }}</span>
         </template>
       </el-table-column>
 
       <el-table-column align="center" label="身份证号">
         <template slot-scope="scope">
-          <span>{{ scope.row.identityNumber }}</span>
+          <span>{{ scope.row.personalInformation.identityNumber }}</span>
         </template>
       </el-table-column>
 
       <el-table-column align="center" label="身份证正面照">
         <template slot-scope="scope">
-          <viewer :img-src="'data:' + scope.row.idCardFrontPhotoContentType + ';base64,' + scope.row.idCardFrontPhoto"/>
+          <viewer :img-src="'data:' + scope.row.personalInformation.idCardFrontPhotoContentType + ';base64,' + scope.row.personalInformation.idCardFrontPhoto"/>
         </template>
       </el-table-column>
 
       <el-table-column align="center" label="身份证反面照">
         <template slot-scope="scope">
-          <viewer :img-src="'data:' + scope.row.idCardBackPhotoContentType + ';base64,' + scope.row.idCardBackPhoto"/>
+          <viewer :img-src="'data:' + scope.row.personalInformation.idCardBackPhotoContentType + ';base64,' + scope.row.personalInformation.idCardBackPhoto"/>
         </template>
       </el-table-column>
 
       <el-table-column align="center" label="审核状态">
         <template slot-scope="scope">
-          <span>{{ scope.row.orderStatus }}</span>
+          <span>{{ formatType(scope.row.auditStatus) }}</span>
         </template>
       </el-table-column>
 
@@ -72,19 +72,19 @@
             type="primary"
             size="small"
             icon="el-icon-view"
-            @click="showDetail">
+            @click="showDetail(scope.$index, list)">
             详情
           </el-button>
           <!-- </template> -->
 
           <el-dropdown>
             <el-button type="primary" size="small">
-              {{ scope.row.orderStatus === '未审核' ? '初审' : '终审' }}
+              {{ formatType(scope.row.auditStatus) === '待审核' ? '初审' : '终审' }}
               <i class="el-icon-arrow-down el-icon--right"/>
             </el-button>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item>通过</el-dropdown-item>
-              <el-dropdown-item>不通过</el-dropdown-item>
+              <el-dropdown-item @click="passed(scope.$index, list)">通过</el-dropdown-item>
+              <el-dropdown-item @click="failure(scope.$index, list)">不通过</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </template>
@@ -101,17 +101,18 @@
 
     <!-- 查看详情弹框 -->
     <el-dialog :visible.sync="showMask" title="申请人信息">
-      <apply-detail-info :data="list"/>
+      <apply-detail-info :data="baseInfo"/>
     </el-dialog>
 
   </div>
 </template>
 
 <script>
-import { getAudits } from '@/api/product'
+import { getAudits, updateAudits } from '@/api/product'
 // import Pagination from '@/components/Pagination'
 import Viewer from '@/components/Viewer'
 import ApplyDetailInfo from './apply-detail-info.vue'
+import { auditStatus } from '@/utils/auditStatus.js'
 
 export default {
   name: 'AuditList',
@@ -156,9 +157,40 @@ export default {
     handleChange(val) {
       console.log(val)
     },
-    showDetail(row) {
-      this.baseInfo = row
+    showDetail(index, list) {
+      this.baseInfo = list[index]
       this.showMask = true
+    },
+    passed(index, list) {
+      const row = list[index]
+
+      if (row.auditStatus === 'PENDINGREVIEW') {
+        row.auditStatus = 'FIRSTTRIALPASSED'
+      } else {
+        row.auditStatus = 'FINALTRIALPASSED'
+      }
+      updateAudits(row).then(response => {
+        if (response.status === 200) {
+          console.log(response.data)
+        }
+      })
+    },
+    failure(index, list) {
+      const row = list[index]
+
+      if (row.auditStatus === 'PENDINGREVIEW') {
+        row.auditStatus = 'FIRSTTRIALFAILED'
+      } else {
+        row.auditStatus = 'FINALTRIALFAILURE'
+      }
+      updateAudits(row).then(response => {
+        if (response.status === 200) {
+          console.log(response.data)
+        }
+      })
+    },
+    formatType(val) {
+      return auditStatus.get(val)
     }
   }
 }
