@@ -67,24 +67,22 @@
 
       <el-table-column align="center" label="操作" max-width="240">
         <template slot-scope="scope">
-          <!-- <template v-if="scope.row.orderStatus === '已通过' || scope.row.orderStatus === '已完成'"> -->
           <el-button
             type="primary"
             size="small"
             icon="el-icon-view"
             @click="showDetail(scope.$index, list)">
-            详情
+            查看
           </el-button>
-          <!-- </template> -->
 
-          <el-dropdown>
+          <el-dropdown @command="handleCommand" v-should-hide="scope.row.auditStatus">
             <el-button type="primary" size="small">
               {{ formatType(scope.row.auditStatus) === '待审核' ? '初审' : '终审' }}
               <i class="el-icon-arrow-down el-icon--right"/>
             </el-button>
             <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item @click="passed(scope.$index, list)">通过</el-dropdown-item>
-              <el-dropdown-item @click="failure(scope.$index, list)">不通过</el-dropdown-item>
+              <el-dropdown-item :command="[true, scope.row]">通过</el-dropdown-item>
+              <el-dropdown-item :command="[false, scope.row]">不通过</el-dropdown-item>
             </el-dropdown-menu>
           </el-dropdown>
         </template>
@@ -100,7 +98,7 @@
     /> -->
 
     <!-- 查看详情弹框 -->
-    <el-dialog :visible.sync="showMask" title="申请人信息">
+    <el-dialog :visible.sync="showMask" title="申请人信息" top="5vh">
       <apply-detail-info :data="baseInfo"/>
     </el-dialog>
 
@@ -113,10 +111,29 @@ import { getAudits, updateAudits } from '@/api/product'
 import Viewer from '@/components/Viewer'
 import ApplyDetailInfo from './apply-detail-info.vue'
 import { auditStatus } from '@/utils/auditStatus.js'
+import { deepClone } from '@/utils'
+
+const CONST = {
+  PENDING: 'PENDINGREVIEW',    // 待审核
+  FIRSTED: 'FIRSTTRIALPASSED', // 初审通过
+  FINALED: 'FINALTRIALPASSED', // 终审通过
+}
 
 export default {
   name: 'AuditList',
   components: { Viewer, ApplyDetailInfo },
+  directives: {
+    shouldHide: {
+      inserted: function (el, binding) {
+        const sta = binding.value
+        if (!sta === CONST.PENDING || !sta === CONST.FIRSTED) {
+          el.style.display = 'none'
+          el.style.height = '0px'
+          el.style.width = '0px'
+        }
+      }
+    }
+  },
   data() {
     return {
       list: [],
@@ -161,32 +178,34 @@ export default {
       this.baseInfo = list[index]
       this.showMask = true
     },
-    passed(index, list) {
-      const row = list[index]
+    /**
+     * 处理下拉菜单
+     */
+    handleCommand(command) {
+      const auditFlag = command[0]
+      const row = deepClone(command[1])
 
-      if (row.auditStatus === 'PENDINGREVIEW') {
-        row.auditStatus = 'FIRSTTRIALPASSED'
-      } else {
-        row.auditStatus = 'FINALTRIALPASSED'
+      if (row.auditStatus === CONST.PENDING) {
+        row.auditStatus = CONST.FIRSTED
+      } 
+      else if (row.auditStatus === CONST.FIRSTED) {
+        row.auditStatus = CONST.FINALED
       }
+
+      // 更新
       updateAudits(row).then(response => {
         if (response.status === 200) {
-          console.log(response.data)
+          this.$message({
+            type: 'success',
+            message: '审核成功'
+          })
+          this.getList() // 刷新列表
+        } else {
+          this.$message.error('审核失败')
         }
-      })
-    },
-    failure(index, list) {
-      const row = list[index]
-
-      if (row.auditStatus === 'PENDINGREVIEW') {
-        row.auditStatus = 'FIRSTTRIALFAILED'
-      } else {
-        row.auditStatus = 'FINALTRIALFAILURE'
-      }
-      updateAudits(row).then(response => {
-        if (response.status === 200) {
-          console.log(response.data)
-        }
+      }).catch(err => {
+        this.$message.error('审核失败')
+        console.error(err)
       })
     },
     formatType(val) {
