@@ -9,7 +9,7 @@ import request from '@/utils/request'
  */
 export function getList(query) {
   return request({
-    url: '/api/beanners',
+    url: '/api/banners',
     method: 'get',
     params: query
   })
@@ -21,7 +21,7 @@ export function getList(query) {
 
 export function add(data) {
   return request({
-    url: '/api/beanners',
+    url: '/api/banners',
     method: 'post',
     data
   })
@@ -33,7 +33,7 @@ export function add(data) {
 
 export function update(data) {
   return request({
-    url: '/api/beanners',
+    url: '/api/banners',
     method: 'put',
     data
   })
