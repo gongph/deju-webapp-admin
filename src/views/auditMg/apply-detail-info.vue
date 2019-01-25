@@ -94,19 +94,25 @@
           </el-col>
         </el-row>
 
-         <h4>联系人信息：</h4>
+        <h4>联系人信息：</h4>
         <el-row :gutter="20">
           <el-col :span="6">
-            <strong>婚姻状况: </strong>
-            <span>{{ data.personalInformation.maritalStatus }}</span>
+            <strong>联系人1姓名: </strong>
+            <span>{{ data.personalInformation.contactName }}</span>
           </el-col>
           <el-col :span="6">
-            <strong>教育程度: </strong>
-            <span>{{ data.personalInformation.educationLevel }}</span>
+            <strong>联系人1电话: </strong>
+            <span>{{ data.personalInformation.contactPhone }}</span>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="6">
+            <strong>联系人2姓名: </strong>
+            <span>{{ data.personalInformation.contactName2 }}</span>
           </el-col>
           <el-col :span="6">
-            <strong>是否工作: </strong>
-            <span>{{ data.personalInformation.companyName }}</span>
+            <strong>联系人2电话: </strong>
+            <span>{{ data.personalInformation.contactPhone2 }}</span>
           </el-col>
         </el-row>
 

@@ -77,9 +77,9 @@
             查看
           </el-button>
 
-          <el-dropdown @command="handleCommand" v-should-hide="scope.row.auditStatus">
+          <el-dropdown @command="handleCommand">
             <el-button type="primary" size="small">
-              {{ formatType(scope.row.auditStatus) === '待审核' ? '初审' : '终审' }}
+              {{ !scope.row.personalInformation.city ? '初审' : '终审' }}
               <i class="el-icon-arrow-down el-icon--right"/>
             </el-button>
             <el-dropdown-menu slot="dropdown">
@@ -118,7 +118,7 @@ import { deepClone } from '@/utils'
 const CONST = {
   PENDING  : 'PENDINGREVIEW',       // 待审核
   FIRSTED  : 'FIRSTTRIALPASSED',    // 初审通过
-  FIRSTFAIL: 'FIRSTTRIALPASSED',    // 初审失败
+  FIRSTFAIL: 'FIRSTTRIALFAILED',    // 初审失败
   FINALED  : 'FINALTRIALPASSED',    // 终审通过
   FINALFAIL: 'FINALTRIALFAILURE'    // 终审失败
 }
@@ -210,24 +210,28 @@ export default {
      * 处理下拉菜单
      */
     handleCommand(command) {
-      const auditFlag = command[0]
+      const flag = command[0]
       const row = deepClone(command[1])
-      // 通过
-      if (auditFlag) {
-        if (row.auditStatus === CONST.PENDING) {
+      // 随便找一个字段判断是初审还是终审环节
+      // city 只有详细信息里才会输入
+      const city = row.personalInformation.city
+      if (!city) {
+        // 初审
+        if (flag) {
+          // 通过
           row.auditStatus = CONST.FIRSTED
-        } 
-        else if (row.auditStatus === CONST.FIRSTED) {
-          row.auditStatus = CONST.FINALED
-        }
-      } 
-      // 不通过
-      else {
-        if (row.auditStatus === CONST.PENDING) {
+        } else {
+          // 不通过
+          console.log('222')
           row.auditStatus = CONST.FIRSTFAIL
-        } 
-        else if (row.auditStatus === CONST.FIRSTED) {
-          console.log(2)
+        }
+      } else {
+        // 终审
+        if (flag) {
+          // 通过
+          row.auditStatus = CONST.FINALED
+        } else {
+          // 不通过
           row.auditStatus = CONST.FINALFAIL
         }
       }
