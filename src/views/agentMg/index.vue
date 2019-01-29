@@ -98,7 +98,7 @@
             </el-form-item>
           </template>
 
-          <el-form-item label="常用邮箱:">
+          <el-form-item label="常用邮箱:" prop="email">
             <el-input v-model="ruleForm.email" class="width-192" placeholder="your@email.com"/>
             <div class="el-form-item__tip">Tips: 用来接收审核通知</div>
           </el-form-item>
@@ -127,6 +127,16 @@ export default {
   name: 'AgentList',
   components: { Pagination },
   data() {
+    var validateEmail = (rule, value, callback) => {
+      if (value) {
+        const reg = /^([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+@([a-zA-Z0-9]+[_|\_|\.]?)*[a-zA-Z0-9]+\.[a-zA-Z]{2,3}$/
+        if (!reg.test(value)) {
+          callback(new Error('请输入您正确邮箱'))
+        } else {
+          callback()
+        }
+      }
+    }
     return {
       list: [],
       total: 0,
@@ -145,6 +155,10 @@ export default {
         ],
         password: [
           { required: true, message: '必填项', trigger: 'blur' }
+        ],
+        email: [
+          { required: true, message: '必填项', trigger: 'blur' },
+          { validator: validateEmail, trigger: 'blur' }
         ]
       },
       showMask: false,
