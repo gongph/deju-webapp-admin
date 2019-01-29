@@ -1,5 +1,5 @@
 module.exports = {
   NODE_ENV: '"production"',
   ENV_CONFIG: '"sit"',
-  BASE_API: '"http://deju-api.yinlongfei.com"'
+  BASE_API: '"http://deju-api.boyuanziben.cn"'
 }
