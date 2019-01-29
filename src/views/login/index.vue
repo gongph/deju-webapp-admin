@@ -1,6 +1,6 @@
 <template>
   <div class="login-container">
-
+    <canvas id="starCanvas" class="canvas-star"></canvas>
     <el-form ref="loginForm" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
 
       <div class="title-container">
@@ -36,7 +36,14 @@
         </span>
       </el-form-item>
 
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;" @click.native.prevent="handleLogin">{{ $t('login.logIn') }}</el-button>
+      <el-button
+        :loading="loading"
+        type="primary"
+        size="large"
+        style="width:100%;margin-bottom:30px;"
+        @click.native.prevent="handleLogin">
+        {{ $t('login.logIn') }}
+      </el-button>
     </el-form>
 
     <el-dialog :title="$t('login.thirdparty')" :visible.sync="showDialog" append-to-body>
@@ -52,6 +59,7 @@
 
 <script>
 import { isvalidUsername } from '@/utils/validate'
+import { startDraw } from '@/utils/canvas-star'
 
 export default {
   name: 'Login',
@@ -65,8 +73,8 @@ export default {
     }
     return {
       loginForm: {
-        username: 'admin',
-        password: 'admin',
+        username: '',
+        password: '',
         rememberMe: true
       },
       loginRules: {
@@ -90,7 +98,8 @@ export default {
       immediate: true
     }
   },
-  created() {
+  mounted() {
+    startDraw()
     // window.addEventListener('hashchange', this.afterQRScan)
   },
   destroyed() {
@@ -193,6 +202,12 @@ export default {
 $bg:#2d3a4b;
 $dark_gray:#889aa4;
 $light_gray:#eee;
+
+.canvas-star {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
 
 .login-container {
   position: fixed;
