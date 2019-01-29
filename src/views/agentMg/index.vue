@@ -1,11 +1,11 @@
 <template>
   <div class="app-container agent-wrapper">
     <el-form :inline="true" class="form-inline">
-      <el-form-item label="代理商名称:">
+      <!-- <el-form-item label="代理商名称:">
         <el-input placeholder="代理商名称" clearable/>
-      </el-form-item>
+      </el-form-item> -->
       <el-form-item>
-        <el-button type="success" icon="el-icon-search">查询</el-button>
+        <!-- <el-button type="success" icon="el-icon-search">查询</el-button> -->
         <el-button type="primary" icon="el-icon-plus" @click="handleAdd">添加代理商</el-button>
       </el-form-item>
     </el-form>
@@ -17,7 +17,7 @@
         width="50"
       />
 
-      <el-table-column align="center" label="代理商">
+      <el-table-column align="center" label="代理商名称">
         <template slot-scope="scope">
           <span>{{ scope.row.firstName }}</span>
         </template>
@@ -29,9 +29,10 @@
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="登录密码">
+
+      <el-table-column align="center" label="常用邮箱">
         <template slot-scope="scope">
-          <span>{{ scope.row.login }}</span>
+          <span>{{ scope.row.email }}</span>
         </template>
       </el-table-column>
 
@@ -54,8 +55,9 @@
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="操作" width="240">
+      <el-table-column align="center" label="操作" width="200">
         <template slot-scope="scope">
+          <!-- <el-button type="primary" size="small" @click="handleEdit(scope.row)">编辑</el-button> -->
           <el-button
             v-if="scope.row.activated"
             type="danger"
@@ -78,11 +80,11 @@
 
     <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.pageSize" @pagination="getList" />
 
-    <!-- 新增代理商弹框 -->
+    <!-- 新增编辑代理商弹框 -->
     <el-dialog v-if="showMask" :visible.sync="showMask" :title="maskTitle" width="350px">
       <div class="dialog-form__wrapper">
         <el-form ref="ruleForm" :model="ruleForm" :rules="rule" label-width="100px">
-          <el-form-item label="代理商名字:" prop="firstName">
+          <el-form-item label="代理商名称:" prop="firstName">
             <el-input v-model="ruleForm.firstName" class="width-192" placeholder="代理商名字"/>
           </el-form-item>
 
@@ -90,8 +92,15 @@
             <el-input v-model="ruleForm.login" class="width-192" placeholder="登录账号"/>
           </el-form-item>
 
-          <el-form-item label="默认密码:" prop="password">
-            <el-input v-model="ruleForm.password" class="width-192" placeholder="登录密码"/>
+          <template v-if="maskTitle !== '编辑'">
+            <el-form-item label="登录密码:" prop="password">
+              <el-input v-model="ruleForm.password" class="width-192" placeholder="登录密码"/>
+            </el-form-item>
+          </template>
+
+          <el-form-item label="常用邮箱:">
+            <el-input v-model="ruleForm.email" class="width-192" placeholder="your@email.com"/>
+            <div class="el-form-item__tip">Tips: 用来接收审核通知</div>
           </el-form-item>
 
           <el-form-item label="是否激活:">
@@ -126,14 +135,7 @@ export default {
         page: 1,
         pageSize: 10
       },
-      ruleForm: {
-        firstName: '',
-        login: '',
-        password: '123456',
-        activated: true,
-        langKey: 'zh-cn',
-        email: 'someone@foxmail.com'
-      },
+      ruleForm: null,
       rule: {
         firstName: [
           { required: true, message: '必填项', trigger: 'blur' }
@@ -150,6 +152,7 @@ export default {
     }
   },
   created() {
+    this.resetRuleForm()
     this.getList()
   },
   methods: {
@@ -175,6 +178,11 @@ export default {
     handleAdd() {
       this.showMask = true
       this.maskTitle = '新增'
+    },
+    handleEdit(row) {
+      this.showMask = true
+      this.maskTitle = '编辑'
+      this.ruleForm = Object.assign({}, row || {})
     },
     modify(row) {
       Api.modify(row).then(response => {
@@ -213,6 +221,16 @@ export default {
         }
       })
     },
+    resetRuleForm() {
+      this.ruleForm = {
+        firstName: '',
+        login: '',
+        password: '123456',
+        activated: true,
+        langKey: 'zh-cn',
+        email: ''
+      }
+    },
     resetForm() {
       this.showMask = false
     }
@@ -223,5 +241,9 @@ export default {
 <style lang="scss" scoped>
   .width-192 {
     max-width: 192px;
+  }
+  .el-form-item__tip {
+    font-size: 12px;
+    color: #C0C4CC;
   }
 </style>
