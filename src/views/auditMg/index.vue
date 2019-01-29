@@ -19,13 +19,13 @@
     </el-form>
 
     <el-table v-loading="listLoading" :data="list" border fit highlight-current-row style="width: 100%">
-      <el-table-column align="center" label="ID" width="80">
-        <template slot-scope="scope">
-          <span>{{ scope.row.id }}</span>
-        </template>
-      </el-table-column>
+      <el-table-column
+        align="center"
+        type="index"
+        width="50"
+      />
 
-      <el-table-column align="center" label="真实姓名:">
+      <el-table-column align="center" label="真实姓名">
         <template slot-scope="scope">
           <span>{{ scope.row.personalInformation.name }}</span>
         </template>
@@ -55,7 +55,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="审核状态">
+      <el-table-column align="center" label="审核状态" width="120">
         <template slot-scope="scope">
           <span>{{ formatType(scope.row.auditStatus) }}</span>
         </template>
@@ -67,7 +67,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="操作" max-width="240">
+      <el-table-column align="center" label="操作" width="200" fixed="right">
         <template slot-scope="scope">
           <el-button
             type="primary"
