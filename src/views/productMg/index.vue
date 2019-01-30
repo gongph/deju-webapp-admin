@@ -91,9 +91,15 @@
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="创建时间" width="100">
+       <el-table-column align="center" label="创建时间">
         <template slot-scope="scope">
-          <el-button type="primary" class="edit-btn" size="small" icon="el-icon-edit" disabled>编辑</el-button>
+          <span>{{ scope.row.createdDate }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column align="center" label="操作" width="100">
+        <template slot-scope="scope">
+          <el-button type="primary" class="edit-btn" size="small" icon="el-icon-edit">编辑</el-button>
         </template>
       </el-table-column>
     </el-table>
