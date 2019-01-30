@@ -2,7 +2,7 @@
   <div class="app-container audit-wrapper">
     <el-form :inline="true" class="form-inline">
       <el-form-item label="审核状态:" clearable>
-        <el-select v-model="listQuery.status" placeholder="请选择" @change="handleSelectChange">
+        <el-select v-model="listQuery.status" placeholder="请选择" @change="handleSelectChange" :disabled="disabled">
           <el-option label="全部" value=""/>
           <el-option
             v-for="(item, $index) of status"
@@ -14,7 +14,7 @@
       </el-form-item>
 
       <el-form-item>
-        <el-button type="success" icon="el-icon-search">查询</el-button>
+        <el-button type="success" icon="el-icon-search" :disabled="disabled">查询</el-button>
       </el-form-item>
     </el-form>
 
@@ -25,7 +25,7 @@
         width="50"
       />
 
-      <el-table-column align="center" label="真实姓名">
+      <el-table-column align="center" label="申请人真实姓名">
         <template slot-scope="scope">
           <span>{{ scope.row.personalInformation.name }}</span>
         </template>
@@ -55,9 +55,22 @@
         </template>
       </el-table-column>
 
+      <el-table-column align="center" label="代理商姓名" width="120">
+        <template slot-scope="scope">
+          <span>{{ scope.row.user.firstName }}</span>
+        </template>
+      </el-table-column>
+
       <el-table-column align="center" label="审核状态" width="120">
         <template slot-scope="scope">
           <span>{{ formatType(scope.row.auditStatus) }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column align="center" label="审核原因">
+        <template slot-scope="scope">
+          <span v-if="scope.row.auditReason">{{ scope.row.auditReason }}</span>
+          <span v-else> - </span>
         </template>
       </el-table-column>
 
@@ -104,6 +117,26 @@
       <apply-detail-info :data="baseInfo"/>
     </el-dialog>
 
+    <!-- 审核失败原因弹框 -->
+    <el-dialog
+      v-if="showReasonMask"
+      :visible.sync="showReasonMask"
+      title="审核不通过原因"
+      top="5vh"
+      width="30%"
+      @close="resetReasonForm('reasonForm')"
+    >
+      <el-form :model="reasonForm" :rules="reasonFormRule" ref="reasonForm">
+        <el-form-item label="" prop="auditReason">
+          <el-input type="textarea" v-model="reasonForm.auditReason" :rows="4" placeholder="请输入审核不通过原因..."></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="resetReasonForm('reasonForm')">取 消</el-button>
+        <el-button type="primary" @click="handleFailAudit('reasonForm')">确 定</el-button>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -138,10 +171,21 @@ export default {
         status: ''
       },
       showMask: false,
+      showReasonMask: false,
+      reasonForm: {
+        auditReason: ''
+      },
+      reasonFormRule: {
+        auditReason: [{ required: true, message: '必填项', trigger: 'blur' }]
+      },
       // 基本信息
       baseInfo: null,
       // 详细信息
-      moreInfo: null
+      moreInfo: null,
+      // 当前行数据
+      rowData: null,
+      // 审核阶段表示
+      auditStep: 0 // 0 待审核; 1 初审; 2 终审
     }
   },
   directives: {
@@ -157,8 +201,11 @@ export default {
     }
   },
   computed: {
-    status () {
+    status() {
       return Array.from(auditStatus) || []
+    },
+    disabled() {
+      return (this.list.length <= 0) ? true : false
     }
   },
   created() {
@@ -211,45 +258,75 @@ export default {
      */
     handleCommand(command) {
       const flag = command[0]
-      const row = deepClone(command[1])
+      this.rowData = deepClone(command[1])
       // 随便找一个字段判断是初审还是终审环节
       // city 只有详细信息里才会输入
-      const city = row.personalInformation.city
+      const city = this.rowData.personalInformation.city
       if (!city) {
         // 初审
         if (flag) {
           // 通过
-          row.auditStatus = CONST.FIRSTED
+          this.rowData.auditStatus = CONST.FIRSTED
+          this.rowData.auditReason = ''
+          this.handleAudit()
         } else {
           // 不通过
-          console.log('222')
-          row.auditStatus = CONST.FIRSTFAIL
+          this.showReasonMask = true
+          this.auditStep = 1
         }
       } else {
         // 终审
         if (flag) {
           // 通过
-          row.auditStatus = CONST.FINALED
+          this.rowData.auditStatus = CONST.FINALED
+          this.rowData.auditReason = ''
+          this.handleAudit()
         } else {
           // 不通过
-          row.auditStatus = CONST.FINALFAIL
+          this.showReasonMask = true
+          this.auditStep = 2
         }
       }
-      // 更新
-      updateAudits(row).then(response => {
+    },
+    handleAudit() {
+      updateAudits(this.rowData).then(response => {
         if (response.status === 200) {
           this.$message({
             type: 'success',
-            message: '审核成功'
+            message: '提交成功'
           })
           this.getList() // 刷新列表
         } else {
-          this.$message.error('审核失败')
+          this.$message.error('提交失败')
         }
       }).catch(err => {
-        this.$message.error('审核失败')
+        this.$message.error('提交失败')
         console.error(err)
       })
+    },
+    handleFailAudit(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          if (this.auditStep === 1) {
+            this.rowData.auditStatus = CONST.FIRSTFAIL
+          } else if (this.auditStep === 2) {
+            this.rowData.auditStatus = CONST.FINALFAIL
+          }
+          this.rowData.auditReason = this.reasonForm.auditReason
+          this.handleAudit()
+          setTimeout(() => {
+            this.showReasonMask = false
+          }, 100)
+        } else {
+          return false
+        }
+      })
+    },
+    resetReasonForm(formName) {
+      this.showReasonMask = false
+      this.rowData = null
+      this.auditStep = 0
+      this.$refs[formName].resetFields()
     },
     formatType(val) {
       return auditStatus.get(val)
