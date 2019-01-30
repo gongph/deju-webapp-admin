@@ -55,8 +55,11 @@
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="操作" width="200">
+      <el-table-column align="center" label="操作" width="220">
         <template slot-scope="scope">
+          <el-button type="primary" size="small" @click="resetPwd">
+            <svg-icon icon-class="password"/> 重置密码
+          </el-button>
           <!-- <el-button type="primary" size="small" @click="handleEdit(scope.row)">编辑</el-button> -->
           <el-button
             v-if="scope.row.activated"
@@ -234,6 +237,26 @@ export default {
           return false
         }
       })
+    },
+    resetPwd() {
+      this.$confirm('确定要重置密码吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        Api.resetpwd().then(response => {
+          if (response.status === 200) {
+            this.$message({
+              message: '重置密码成功！默认密码为：123456',
+              type: 'success'
+            })
+          } else {
+            this.$message.error('重置密码失败！')
+          }
+        })
+      }).catch(() => {
+        // Do nothing      
+      });
     },
     resetRuleForm() {
       this.ruleForm = {

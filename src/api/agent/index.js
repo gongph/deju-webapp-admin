@@ -38,3 +38,15 @@ export function modify(data) {
     data
   })
 }
+
+/**
+ * 重置密码
+ */
+
+export function resetpwd() {
+  return request({
+    url: '/api/resetpwd',
+    method: 'put'
+  })
+}
+
