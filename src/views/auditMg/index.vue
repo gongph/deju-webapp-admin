@@ -126,9 +126,9 @@
       width="30%"
       @close="resetReasonForm('reasonForm')"
     >
-      <el-form :model="reasonForm" :rules="reasonFormRule" ref="reasonForm">
+      <el-form ref="reasonForm" :model="reasonForm" :rules="reasonFormRule">
         <el-form-item label="" prop="auditReason">
-          <el-input type="textarea" v-model="reasonForm.auditReason" :rows="4" placeholder="请输入审核不通过原因..."></el-input>
+          <el-input v-model="reasonForm.auditReason" :rows="4" type="textarea" placeholder="请输入审核不通过原因..."/>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
@@ -149,16 +149,28 @@ import { auditStatus } from '@/utils/auditStatus.js'
 import { deepClone } from '@/utils'
 
 const CONST = {
-  PENDING  : 'PENDINGREVIEW',       // 待审核
-  FIRSTED  : 'FIRSTTRIALPASSED',    // 初审通过
-  FIRSTFAIL: 'FIRSTTRIALFAILED',    // 初审失败
-  FINALED  : 'FINALTRIALPASSED',    // 终审通过
-  FINALFAIL: 'FINALTRIALFAILURE'    // 终审失败
+  PENDING: 'PENDINGREVIEW', // 待审核
+  FIRSTED: 'FIRSTTRIALPASSED', // 初审通过
+  FIRSTFAIL: 'FIRSTTRIALFAILED', // 初审失败
+  FINALED: 'FINALTRIALPASSED', // 终审通过
+  FINALFAIL: 'FINALTRIALFAILURE' // 终审失败
 }
 
 export default {
   name: 'AuditList',
   components: { Viewer, ApplyDetailInfo, Pagination },
+  directives: {
+    shouldHide: {
+      inserted: function(el, binding) {
+        const sta = binding.value
+        if (!sta === CONST.PENDING || !sta === CONST.FIRSTED) {
+          el.style.display = 'none'
+          el.style.height = '0px'
+          el.style.width = '0px'
+        }
+      }
+    }
+  },
   data() {
     return {
       list: [],
@@ -188,24 +200,12 @@ export default {
       auditStep: 0 // 0 待审核; 1 初审; 2 终审
     }
   },
-  directives: {
-    shouldHide: {
-      inserted: function (el, binding) {
-        const sta = binding.value
-        if (!sta === CONST.PENDING || !sta === CONST.FIRSTED) {
-          el.style.display = 'none'
-          el.style.height = '0px'
-          el.style.width = '0px'
-        }
-      }
-    }
-  },
   computed: {
     status() {
       return Array.from(auditStatus) || []
     },
     disabled() {
-      return (this.list.length <= 0) ? true : false
+      return (this.list.length <= 0)
     }
   },
   created() {
@@ -216,7 +216,7 @@ export default {
       this.listLoading = true
       getAudits({
         page: this.listQuery.page - 1,
-        pageSize: this.listQuery.pageSize
+        size: this.listQuery.pageSize
       }).then(response => {
         if (response.status !== 200) return
         this.list = response.data
@@ -234,7 +234,7 @@ export default {
       this.getList()
     },
     handleSelectChange(val) {
-      var val = (typeof val !== 'string') ? this.listQuery.status : val
+      val = (typeof val !== 'string') ? this.listQuery.status : val
       this.filterList(val)
     },
     filterList(val) {
