@@ -2,7 +2,7 @@
   <div class="app-container audit-wrapper">
     <el-form :inline="true" class="form-inline">
       <el-form-item label="审核状态:" clearable>
-        <el-select v-model="listQuery.status" placeholder="请选择" @change="handleSelectChange" :disabled="disabled">
+        <el-select v-model="listQuery.status" placeholder="请选择" @change="handleSelectChange">
           <el-option label="全部" value=""/>
           <el-option
             v-for="(item, $index) of status"
@@ -14,7 +14,7 @@
       </el-form-item>
 
       <el-form-item>
-        <el-button type="success" icon="el-icon-search" :disabled="disabled">查询</el-button>
+        <el-button type="success" icon="el-icon-search" @click="handleSelectChange">查询</el-button>
       </el-form-item>
     </el-form>
 
@@ -104,13 +104,13 @@
       </el-table-column>
     </el-table>
 
-    <!-- <pagination
+    <pagination
       v-show="total>0"
       :total="total"
       :page.sync="listQuery.page"
-      :limit.sync="listQuery.limit"
+      :limit.sync="listQuery.pageSize"
       @pagination="getList"
-    /> -->
+    />
 
     <!-- 查看详情弹框 -->
     <el-dialog :visible.sync="showMask" title="申请人信息" top="5vh">
@@ -142,7 +142,7 @@
 
 <script>
 import { getAudits, updateAudits } from '@/api/product'
-// import Pagination from '@/components/Pagination'
+import Pagination from '@/components/Pagination'
 import Viewer from '@/components/Viewer'
 import ApplyDetailInfo from './apply-detail-info.vue'
 import { auditStatus } from '@/utils/auditStatus.js'
@@ -158,7 +158,7 @@ const CONST = {
 
 export default {
   name: 'AuditList',
-  components: { Viewer, ApplyDetailInfo },
+  components: { Viewer, ApplyDetailInfo, Pagination },
   data() {
     return {
       list: [],
@@ -167,7 +167,7 @@ export default {
       listLoading: true,
       listQuery: {
         page: 1,
-        limit: 10,
+        pageSize: 10,
         status: ''
       },
       showMask: false,
@@ -214,26 +214,27 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
-      getAudits().then(response => {
+      getAudits({
+        page: this.listQuery.page - 1,
+        pageSize: this.listQuery.pageSize
+      }).then(response => {
+        if (response.status !== 200) return
         this.list = response.data
-        // 用于数据筛选
-        this.copyList = response.data
-        // this.total = response.data.total
+        this.copyList = response.data // 用于数据筛选
+        this.total = Number(response.headers['x-total-count']) || 0
         this.listLoading = false
       })
     },
     handleSizeChange(val) {
-      this.listQuery.limit = val
+      this.listQuery.pageSize = val
       this.getList()
     },
     handleCurrentChange(val) {
       this.listQuery.page = val
       this.getList()
     },
-    handleChange(val) {
-      console.log(val)
-    },
     handleSelectChange(val) {
+      var val = (typeof val !== 'string') ? this.listQuery.status : val
       this.filterList(val)
     },
     filterList(val) {
