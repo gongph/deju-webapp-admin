@@ -43,10 +43,11 @@ export function modify(data) {
  * 重置密码
  */
 
-export function resetpwd() {
+export function resetpwd(data) {
   return request({
     url: '/api/resetpwd',
-    method: 'put'
+    method: 'put',
+    data
   })
 }
 
