@@ -216,7 +216,8 @@ export default {
       this.listLoading = true
       getAudits({
         page: this.listQuery.page - 1,
-        size: this.listQuery.pageSize
+        size: this.listQuery.pageSize,
+        sort: 'createdDate,desc'
       }).then(response => {
         if (response.status !== 200) return
         this.list = response.data
