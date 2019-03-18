@@ -3,7 +3,7 @@
     <el-form :inline="true" class="form-inline">
       <el-form-item label="审核状态:" clearable>
         <el-select v-model="listQuery.status" placeholder="请选择" @change="handleSelectChange">
-          <el-option label="全部" value=""/>
+          <!-- <el-option label="全部" value=""/> -->
           <el-option
             v-for="(item, $index) of status"
             :key="$index"
@@ -180,7 +180,7 @@ export default {
       listQuery: {
         page: 1,
         pageSize: 10,
-        status: ''
+        status: 'PENDINGREVIEW'
       },
       showMask: false,
       showReasonMask: false,
@@ -214,11 +214,15 @@ export default {
   methods: {
     getList() {
       this.listLoading = true
-      getAudits({
+      const data = {
         page: this.listQuery.page - 1,
         size: this.listQuery.pageSize,
         sort: 'createdDate,desc'
-      }).then(response => {
+      }
+      if (this.listQuery.status) {
+        data.auditStatus = this.listQuery.status
+      }
+      getAudits(data).then(response => {
         if (response.status !== 200) return
         this.list = response.data
         this.copyList = response.data // 用于数据筛选
@@ -235,8 +239,9 @@ export default {
       this.getList()
     },
     handleSelectChange(val) {
-      val = (typeof val !== 'string') ? this.listQuery.status : val
-      this.filterList(val)
+      // val = (typeof val !== 'string') ? this.listQuery.status : val
+      // this.filterList(val)
+      this.getList()
     },
     filterList(val) {
       if (this.copyList.length <= 0) return
