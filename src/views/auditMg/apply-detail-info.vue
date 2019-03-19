@@ -28,14 +28,14 @@
         <el-row :gutter="20">
           <el-col :span="6">
             <p><strong>身份证正面照: </strong></p>
-            <p><img 
+            <p><img
               :src="'data:' + data.personalInformation.idCardFrontPhotoContentType + ';base64,' + data.personalInformation.idCardFrontPhoto"
               style="width: 50px;">
             </p>
           </el-col>
           <el-col :span="6">
             <p><strong>身份证反面照: </strong></p>
-            <p><img 
+            <p><img
               :src="'data:' + data.personalInformation.idCardBackPhotoContentType + ';base64,' + data.personalInformation.idCardBackPhoto"
               style="width: 50px;">
             </p>
@@ -115,7 +115,65 @@
             <span>{{ data.personalInformation.contactPhone2 }}</span>
           </el-col>
         </el-row>
+        <el-row :gutter="20">
+          <el-col :span="6">
+            <strong>紧急联系人姓名（父/母）: </strong>
+            <span>{{ data.personalInformation.contactName3 }}</span>
+          </el-col>
+          <el-col :span="6">
+            <strong>紧急联系人电话（父/母） </strong>
+            <span>{{ data.personalInformation.contactPhone3 }}</span>
+          </el-col>
+        </el-row>
+        <el-row :gutter="20">
+          <el-col :span="6">
+            <strong>紧急联系人姓名（配偶）: </strong>
+            <span>{{ data.personalInformation.contactName4 }}</span>
+          </el-col>
+          <el-col :span="6">
+            <strong>紧急联系人电话（配偶）: </strong>
+            <span>{{ data.personalInformation.contactPhone4 }}</span>
+          </el-col>
+        </el-row>
 
+        <h4>证明材料：</h4>
+        <el-row :gutter="20">
+          <el-col :span="6">
+            <p><strong>工作证明照片: </strong></p>
+            <p><img
+              :src="'data:' + data.personalInformation.workNamePhotoContentType + ';base64,' + data.personalInformation.workNamePhoto"
+              style="width: 50px;">
+            </p>
+          </el-col>
+          <el-col :span="6">
+            <p><strong>营业执照: </strong></p>
+            <p><img
+              :src="'data:' + data.personalInformation.businessLicensePhotoContentType + ';base64,' + data.personalInformation.businessLicensePhoto"
+              style="width: 50px;">
+            </p>
+          </el-col>
+          <el-col :span="6">
+            <p><strong>房产证明或房本: </strong></p>
+            <p><img
+              :src="'data:' + data.personalInformation.proofOfRealEstateContentType + ';base64,' + data.personalInformation.proofOfRealEstate"
+              style="width: 50px;">
+            </p>
+          </el-col>
+          <el-col :span="6">
+            <p><strong>购房网签合同: </strong></p>
+            <p><img
+              :src="'data:' + data.personalInformation.purchaseAHouseNetworkContractContentType + ';base64,' + data.personalInformation.purchaseAHouseNetworkContract"
+              style="width: 50px;">
+            </p>
+          </el-col>
+          <el-col :span="6">
+            <p><strong>其他材料: </strong></p>
+            <p><img
+              :src="'data:' + data.personalInformation.otherPhotoContentType + ';base64,' + data.personalInformation.otherPhoto"
+              style="width: 50px;">
+            </p>
+          </el-col>
+        </el-row>
       </div>
     </el-card>
   </div>
