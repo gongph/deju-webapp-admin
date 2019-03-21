@@ -244,6 +244,7 @@ export default {
         type: 'warning'
       }).then(() => {
         Api.resetpwd({
+          authorities: row.authorities,
           id: row.id,
           firstName: row.firstName,
           login: row.login,
