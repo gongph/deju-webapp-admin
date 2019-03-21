@@ -66,7 +66,7 @@ export default {
   data() {
     const validateUsername = (rule, value, callback) => {
       if (!isvalidUsername(value)) {
-        callback(new Error('Please enter the correct user name'))
+        callback(new Error('请输入正确的用户名'))
       } else {
         callback()
       }
@@ -80,8 +80,8 @@ export default {
       loginRules: {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
         password: [
-          { required: true, trigger: 'blur' },
-          { min: 1, max: 5, trigger: 'blur' }
+          { required: true, trigger: 'blur', message: '密码不能为空'},
+          { min: 6, max: 18, trigger: 'blur', message: '请输入6-18位有效密码'}
         ]
       },
       passwordType: 'password',
