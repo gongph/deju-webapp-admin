@@ -81,7 +81,7 @@ export default {
         username: [{ required: true, trigger: 'blur', validator: validateUsername }],
         password: [
           { required: true, trigger: 'blur', message: '密码不能为空'},
-          { min: 6, max: 18, trigger: 'blur', message: '请输入6-18位有效密码'}
+          { min: 5, trigger: 'blur', message: '请输入5位以上的有效密码'}
         ]
       },
       passwordType: 'password',
