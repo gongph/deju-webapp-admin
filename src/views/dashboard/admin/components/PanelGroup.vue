@@ -1,26 +1,30 @@
 <template>
   <el-row :gutter="40" class="panel-group">
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('newVisitis')">
-        <div class="card-panel-icon-wrapper icon-people">
-          <svg-icon icon-class="peoples" class-name="card-panel-icon" />
+      <router-link to="/agents/index">
+        <div class="card-panel" @click="handleSetLineChartData('newVisitis')">
+          <div class="card-panel-icon-wrapper icon-people">
+            <svg-icon icon-class="peoples" class-name="card-panel-icon" />
+          </div>
+          <div class="card-panel-description">
+            <div class="card-panel-text">代理商人数</div>
+            <count-to :start-val="0" :end-val="agentNumber" :duration="2600" class="card-panel-num"/>
+          </div>
         </div>
-        <div class="card-panel-description">
-          <div class="card-panel-text">代理商人数</div>
-          <count-to :start-val="0" :end-val="agentNumber" :duration="2600" class="card-panel-num"/>
-        </div>
-      </div>
+      </router-link>
     </el-col>
     <el-col :xs="12" :sm="12" :lg="6" class="card-panel-col">
-      <div class="card-panel" @click="handleSetLineChartData('messages')">
-        <div class="card-panel-icon-wrapper icon-message">
-          <el-badge is-dot class="item"><svg-icon icon-class="message" class-name="card-panel-icon" /></el-badge>
+      <router-link to="/audits/index">
+        <div class="card-panel" @click="handleSetLineChartData('messages')">
+          <div class="card-panel-icon-wrapper icon-message">
+            <el-badge is-dot class="item"><svg-icon icon-class="message" class-name="card-panel-icon" /></el-badge>
+          </div>
+          <div class="card-panel-description">
+            <div class="card-panel-text">待审核工单</div>
+            <count-to :start-val="0" :end-val="order" :duration="3000" class="card-panel-num"/>
+          </div>
         </div>
-        <div class="card-panel-description">
-          <div class="card-panel-text">待审核工单</div>
-          <count-to :start-val="0" :end-val="order" :duration="3000" class="card-panel-num"/>
-        </div>
-      </div>
+      </router-link>
     </el-col>
   </el-row>
 </template>
@@ -52,8 +56,14 @@ export default {
       })
     },
     orderList() {
+      const data = {
+        page: 0,
+        size: 1000000,
+        sort: 'createdDate,desc'
+      }
+      data.auditStatus = 'PENDINGREVIEW'
       getAudits().then(response => {
-        this.order = response.data.length
+        this.order = Number(response.headers['x-total-count']) || 0
       })
     }
   }
