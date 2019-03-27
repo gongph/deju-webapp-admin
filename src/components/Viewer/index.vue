@@ -17,7 +17,7 @@ export default {
   computed: {
     styleClass() {
       return {
-        width: this.width ? this.width : false
+        width: this.width ? this.width + 'px' : false
       }
     }
   },
