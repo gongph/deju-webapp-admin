@@ -90,7 +90,7 @@
 
       <el-table-column align="center" label="审核状态" width="120">
         <template slot-scope="scope">
-          <span>{{ formatType(scope.row.auditStatus) }}</span>
+          <span>{{ formatAuditStatus(scope.row.auditStatus) }}</span>
         </template>
       </el-table-column>
 
@@ -107,6 +107,28 @@
         </template>
       </el-table-column>
 
+      <el-table-column align="center" label="审核时间">
+        <template slot-scope="scope">
+          <template v-if="scope.row.lastModifiedDate">
+            <span>{{ scope.row.lastModifiedDate | parseTime('{y}-{m}-{d} {h}:{i}:{s}') }}</span>
+          </template>
+          <template v-else>
+            <span>-</span>
+          </template>
+        </template>
+      </el-table-column>
+
+      <el-table-column align="center" label="审核人">
+        <template slot-scope="scope">
+          <template v-if="scope.row.lastModifiedBy">
+            <span>{{ scope.row.lastModifiedBy }}</span>
+          </template>
+          <template v-else>
+            <span>-</span>
+          </template>
+        </template>
+      </el-table-column>
+
       <el-table-column align="center" label="操作" width="200" fixed="right">
         <template slot-scope="scope">
           <el-button
@@ -117,16 +139,21 @@
             查看
           </el-button>
 
-          <el-dropdown @command="handleCommand">
-            <el-button type="primary" size="small">
-              {{ !scope.row.personalInformation.city ? '初审' : '终审' }}
-              <i class="el-icon-arrow-down el-icon--right"/>
-            </el-button>
-            <el-dropdown-menu slot="dropdown">
-              <el-dropdown-item :command="[true, scope.row]">通过</el-dropdown-item>
-              <el-dropdown-item :command="[false, scope.row]">不通过</el-dropdown-item>
-            </el-dropdown-menu>
-          </el-dropdown>
+          <!-- 终审状态不显示审核按钮了 -->
+          <template v-if="scope.row.auditStatus !== 'FINALTRIALPASSED' &&  scope.row.auditStatus !== 'FINALTRIALFAILURE'">
+            <el-dropdown @command="handleCommand">
+              <!-- <el-button type="primary" size="small">
+                {{ !scope.row.personalInformation.city ? '初审' : '终审' }}
+                <i class="el-icon-arrow-down el-icon--right"/>
+              </el-button> -->
+              <el-button type="primary" size="small">{{ auditBtnText }} <i class="el-icon-arrow-down el-icon--right"/></el-button>
+              <el-dropdown-menu slot="dropdown">
+                <el-dropdown-item :command="[true, scope.row]">通过</el-dropdown-item>
+                <el-dropdown-item :command="[false, scope.row]">不通过</el-dropdown-item>
+              </el-dropdown-menu>
+            </el-dropdown>
+          </template>
+          
         </template>
       </el-table-column>
     </el-table>
@@ -161,6 +188,36 @@
       <div slot="footer" class="dialog-footer">
         <el-button @click="resetReasonForm('reasonForm')">取 消</el-button>
         <el-button type="primary" @click="handleFailAudit('reasonForm')">确 定</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 调整最终额度和期限弹框 -->
+    <el-dialog
+      v-if="showFinalAuditMask"
+      :visible.sync="showFinalAuditMask"
+      title="确认额度和期限"
+      top="5vh"
+      width="30%"
+      @close="resetFinalForm('finalForm')"
+    >
+      <el-form ref="finalForm" :model="finalForm" :rules="finalFormRule" label-width="92px">
+        <el-form-item label="终审额度:">
+          <el-input v-model="finalForm.amount" placeholder="请输入终审额度" style="width: 199px;"/>
+        </el-form-item>
+        <el-form-item label="终审期限:" >
+          <el-select v-model="finalForm.deadline" placeholder="请选择">
+          <el-option
+            v-for="(item, $index) of deadlines"
+            :key="$index"
+            :value="item"
+            :label="item + '个月'"
+          />
+        </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="resetFinalForm('finalForm')">取 消</el-button>
+        <el-button type="primary" @click="handleFinalForm('finalForm')">{{ finalSubtnText }}</el-button>
       </div>
     </el-dialog>
 
@@ -210,14 +267,25 @@ export default {
         status: 'PENDINGREVIEW',
         user: ''
       },
+      auditBtnText: '审核',
+      finalSubtnText: '终审通过',
       showMask: false,
       showReasonMask: false,
+      showFinalAuditMask: false,
       reasonForm: {
         auditReason: ''
       },
       reasonFormRule: {
         auditReason: [{ required: true, message: '必填项', trigger: 'blur' }]
       },
+      finalForm: {
+        amount: 0,
+        deadline: 3
+      },
+      finalFormRule: {
+        //
+      },
+      deadlines: [3, 6, 12, 24],
       // 基本信息
       baseInfo: null,
       // 详细信息
@@ -225,7 +293,6 @@ export default {
       // 当前行数据
       rowData: null,
       // 审核阶段表示
-      auditStep: 0 // 0 待审核; 1 初审; 2 终审
     }
   },
   computed: {
@@ -245,7 +312,7 @@ export default {
       const data = {
         page: this.listQuery.page - 1,
         size: this.listQuery.pageSize,
-        sort: 'createdDate,desc'
+        sort: 'lastModifiedDate,desc'
       }
       if (this.listQuery.status) {
         data.auditStatus = this.listQuery.status
@@ -270,8 +337,6 @@ export default {
       this.getList()
     },
     handleSelectChange(val) {
-      // val = (typeof val !== 'string') ? this.listQuery.status : val
-      // this.filterList(val)
       this.getList()
     },
     filterList(val) {
@@ -297,46 +362,66 @@ export default {
     handleCommand(command) {
       const flag = command[0]
       this.rowData = deepClone(command[1])
-      // 随便找一个字段判断是初审还是终审环节
-      // city 只有详细信息里才会输入
-      const city = this.rowData.personalInformation.city
-      if (!city) {
-        // 初审
-        if (flag) {
-          // 通过
+      const auditStatus = this.rowData.auditStatus
+      const status = this.formatAuditStatus(auditStatus)
+      
+      // 通过操作
+      if (flag) {
+        if (status === '待审核') {
           this.rowData.auditStatus = CONST.FIRSTED
           this.rowData.auditReason = ''
-          this.handleAudit()
-        } else {
-          // 不通过
-          this.showReasonMask = true
-          this.auditStep = 1
-        }
-      } else {
-        // 终审
-        if (flag) {
-          // 通过
+
+          // 改变审核菜单按钮文本
+          this.auditBtnText = '处理中...'
+          this.handleAudit(() => {
+            this.auditBtnText = '审核'
+          })
+
+        } else if (status === '初审通过' || status === '初审失败') {
           this.rowData.auditStatus = CONST.FINALED
           this.rowData.auditReason = ''
-          this.handleAudit()
-        } else {
-          // 不通过
-          this.showReasonMask = true
-          this.auditStep = 2
+
+          // 赋值
+          let { amount, deadline } = this.rowData
+          this.finalForm.amount = amount
+          this.finalForm.deadline = deadline
+
+          // 显示终审弹框
+          this.showFinalAuditMask = true
         }
+      } 
+      // 不通过操作
+      else {
+        if (status === '待审核') {
+          this.rowData.auditStatus = CONST.FIRSTFAIL
+          this.rowData.auditReason = ''
+        } else if (status === '初审通过' || status === '初审失败') {
+          this.rowData.auditStatus = CONST.FINALTRIALFAILURE
+          this.rowData.auditReason = ''
+        }
+        this.showReasonMask = true
       }
     },
-    handleAudit() {
+    handleAudit(cb) {
+      let status = false
       updateAudits(this.rowData).then(response => {
         if (response.status === 200) {
           this.$message({
             type: 'success',
             message: '提交成功'
           })
+          status = true
           this.getList() // 刷新列表
         } else {
+          status = false
           this.$message.error('提交失败')
         }
+
+        // Callback
+        if (cb && typeof cb === 'function') {
+          cb(status)
+        }
+
       }).catch(err => {
         this.$message.error('提交失败')
         console.error(err)
@@ -345,16 +430,10 @@ export default {
     handleFailAudit(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          if (this.auditStep === 1) {
-            this.rowData.auditStatus = CONST.FIRSTFAIL
-          } else if (this.auditStep === 2) {
-            this.rowData.auditStatus = CONST.FINALFAIL
-          }
           this.rowData.auditReason = this.reasonForm.auditReason
-          this.handleAudit()
-          setTimeout(() => {
-            this.showReasonMask = false
-          }, 100)
+          this.handleAudit((flag) => {
+            if (flag) this.showReasonMask = false
+          })
         } else {
           return false
         }
@@ -363,10 +442,25 @@ export default {
     resetReasonForm(formName) {
       this.showReasonMask = false
       this.rowData = null
-      this.auditStep = 0
+      // this.auditStep = 0
       this.$refs[formName].resetFields()
     },
-    formatType(val) {
+    handleFinalForm(formName) {
+      this.rowData.finalAmount = this.finalForm.amount
+      this.rowData.finalDeadline = this.finalForm.deadline
+
+      // 改变提交按钮文本
+      this.finalSubtnText = '提交中...'
+      this.handleAudit((flag) => {
+        this.finalSubtnText = '终审通过'
+        if (flag) this.showFinalAuditMask = false
+      })
+    },
+    resetFinalForm(formName) {
+      this.$refs[formName].resetFields()
+      this.showFinalAuditMask = false
+    },
+    formatAuditStatus(val) {
       return auditStatus.get(val)
     }
   }
