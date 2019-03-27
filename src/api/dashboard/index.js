@@ -17,9 +17,10 @@ export function getList() {
 /**
  * 获取审核列表
  */
-export function getAudits() {
+export function getAudits(query) {
   return request({
     url: '/api/application-infos',
-    method: 'get'
+    method: 'get',
+    params: query
   })
 }
