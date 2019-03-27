@@ -35,7 +35,7 @@ export default {
           flipVertical: 4,
         },
         viewed() {
-          viewer.zoomTo(1)
+          viewer.zoomTo(0.3)
         }
       })
       viewer.show(true)
