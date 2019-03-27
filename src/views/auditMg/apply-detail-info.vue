@@ -95,41 +95,41 @@
 
         <h4>联系人信息：</h4>
         <el-row :gutter="20">
-          <el-col :span="6">
+          <el-col :span="10">
             <strong>联系人1姓名: </strong>
             <span>{{ data.personalInformation.contactName }}</span>
           </el-col>
-          <el-col :span="6">
+          <el-col :span="10">
             <strong>联系人1电话: </strong>
             <span>{{ data.personalInformation.contactPhone }}</span>
           </el-col>
         </el-row>
         <el-row :gutter="20">
-          <el-col :span="6">
+          <el-col :span="10">
             <strong>联系人2姓名: </strong>
             <span>{{ data.personalInformation.contactName2 }}</span>
           </el-col>
-          <el-col :span="6">
+          <el-col :span="10">
             <strong>联系人2电话: </strong>
             <span>{{ data.personalInformation.contactPhone2 }}</span>
           </el-col>
         </el-row>
         <el-row :gutter="20">
-          <el-col :span="6">
+          <el-col :span="10">
             <strong>紧急联系人姓名（父/母）: </strong>
             <span>{{ data.personalInformation.contactName3 }}</span>
           </el-col>
-          <el-col :span="6">
+          <el-col :span="10">
             <strong>紧急联系人电话（父/母） </strong>
             <span>{{ data.personalInformation.contactPhone3 }}</span>
           </el-col>
         </el-row>
         <el-row :gutter="20">
-          <el-col :span="6">
+          <el-col :span="10">
             <strong>紧急联系人姓名（配偶）: </strong>
             <span>{{ data.personalInformation.contactName4 }}</span>
           </el-col>
-          <el-col :span="6">
+          <el-col :span="10">
             <strong>紧急联系人电话（配偶）: </strong>
             <span>{{ data.personalInformation.contactPhone4 }}</span>
           </el-col>
