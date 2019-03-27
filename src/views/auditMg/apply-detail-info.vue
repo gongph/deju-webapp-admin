@@ -28,17 +28,16 @@
         <el-row :gutter="20">
           <el-col :span="6">
             <p><strong>身份证正面照: </strong></p>
-            <p><img
-              :src="'data:' + data.personalInformation.idCardFrontPhotoContentType + ';base64,' + data.personalInformation.idCardFrontPhoto"
-              style="width: 50px;">
-            </p>
+            <viewer
+              :img-src="'data:' + data.personalInformation.idCardFrontPhotoContentType + ';base64,' + data.personalInformation.idCardFrontPhoto">
+            </viewer>
           </el-col>
           <el-col :span="6">
             <p><strong>身份证反面照: </strong></p>
-            <p><img
-              :src="'data:' + data.personalInformation.idCardBackPhotoContentType + ';base64,' + data.personalInformation.idCardBackPhoto"
+            <viewer
+              :img-src="'data:' + data.personalInformation.idCardBackPhotoContentType + ';base64,' + data.personalInformation.idCardBackPhoto"
               style="width: 50px;">
-            </p>
+            </viewer>
           </el-col>
         </el-row>
       </div>
@@ -140,38 +139,60 @@
         <el-row :gutter="20">
           <el-col :span="6">
             <p><strong>工作证明照片: </strong></p>
-            <p><img
-              :src="'data:' + data.personalInformation.workNamePhotoContentType + ';base64,' + data.personalInformation.workNamePhoto"
-              style="width: 50px;">
-            </p>
+            <template v-if="data.personalInformation.workNamePhoto">
+              <viewer
+                :img-src="'data:' + data.personalInformation.workNamePhotoContentType + ';base64,' + data.personalInformation.workNamePhoto">
+              </viewer>
+            </template>
+            <template v-else>
+              <span>(无)</span>
+            </template>
+            
           </el-col>
           <el-col :span="6">
             <p><strong>营业执照: </strong></p>
-            <p><img
-              :src="'data:' + data.personalInformation.businessLicensePhotoContentType + ';base64,' + data.personalInformation.businessLicensePhoto"
-              style="width: 50px;">
-            </p>
+            <template v-if="data.personalInformation.businessLicensePhoto">
+              <viewer
+                :img-src="'data:' + data.personalInformation.businessLicensePhotoContentType + ';base64,' + data.personalInformation.businessLicensePhoto">
+              </viewer>
+            </template>
+            <template v-else>
+              <span>(无)</span>
+            </template>
+            
           </el-col>
           <el-col :span="6">
             <p><strong>房产证明或房本: </strong></p>
-            <p><img
-              :src="'data:' + data.personalInformation.proofOfRealEstateContentType + ';base64,' + data.personalInformation.proofOfRealEstate"
-              style="width: 50px;">
-            </p>
+            <template v-if="data.personalInformation.proofOfRealEstate">
+              <viewer
+                :img-src="'data:' + data.personalInformation.proofOfRealEstateContentType + ';base64,' + data.personalInformation.proofOfRealEstate">
+              </viewer>
+            </template>
+            <template v-else>
+              <span>(无)</span>
+            </template>
           </el-col>
           <el-col :span="6">
             <p><strong>购房网签合同: </strong></p>
-            <p><img
-              :src="'data:' + data.personalInformation.purchaseAHouseNetworkContractContentType + ';base64,' + data.personalInformation.purchaseAHouseNetworkContract"
-              style="width: 50px;">
-            </p>
+            <template v-if="data.personalInformation.purchaseAHouseNetworkContract">
+              <viewer
+                :img-src="'data:' + data.personalInformation.purchaseAHouseNetworkContractContentType + ';base64,' + data.personalInformation.purchaseAHouseNetworkContract">
+              </viewer>
+            </template>
+            <template v-else>
+              <span>(无)</span>
+            </template>
           </el-col>
           <el-col :span="6">
             <p><strong>其他材料: </strong></p>
-            <p><img
-              :src="'data:' + data.personalInformation.otherPhotoContentType + ';base64,' + data.personalInformation.otherPhoto"
-              style="width: 50px;">
-            </p>
+            <template v-if="data.personalInformation.otherPhoto">
+              <viewer
+                :img-src="'data:' + data.personalInformation.otherPhotoContentType + ';base64,' + data.personalInformation.otherPhoto">
+              </viewer>
+            </template>
+            <template v-else>
+              <span>(无)</span>
+            </template>
           </el-col>
         </el-row>
       </div>
@@ -180,8 +201,10 @@
 </template>
 
 <script>
+import Viewer from '@/components/Viewer'
 export default {
   name: 'ApplyDetailInfo',
+  components: { Viewer },
   props: {
     data: {
       type: Object,
@@ -197,6 +220,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+  .detail-info__wrapper {
+    height: 600px;
+    overflow-y: auto;
+  }
   .el-row {
     line-height: 2;
     .el-col {
