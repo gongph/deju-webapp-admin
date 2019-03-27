@@ -1,6 +1,6 @@
 <template>
   <div class="viewer">
-    <img :src="imgSrc" @click="click($event)">
+    <img :src="imgSrc" @click="click($event)" :style="styleClass">
   </div>
 </template>
 
@@ -11,7 +11,15 @@ import Viewer from 'viewerjs'
 export default {
   name: 'Viewer',
   props: {
-    imgSrc: String
+    imgSrc: String,
+    width: Number
+  },
+  computed: {
+    styleClass() {
+      return {
+        width: this.width ? this.width : false
+      }
+    }
   },
   methods: {
     click(evt) {
