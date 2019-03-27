@@ -1,7 +1,12 @@
 <template>
   <div class="app-container audit-wrapper">
     <el-form :inline="true" class="form-inline">
+      <el-form-item label="代理商:" clearable>
+        <el-input v-model="listQuery.user" placeholder="代理商名称" clearable/>
+      </el-form-item>
+      
       <el-form-item label="审核状态:" clearable>
+        
         <el-select v-model="listQuery.status" placeholder="请选择" @change="handleSelectChange">
           <!-- <el-option label="全部" value=""/> -->
           <el-option
@@ -25,9 +30,37 @@
         width="50"
       />
 
-      <el-table-column align="center" label="申请人真实姓名">
+      <el-table-column align="center" label="代理商">
+        <template slot-scope="scope">
+          <span>{{ scope.row.user.login }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column align="center" label="申请人">
         <template slot-scope="scope">
           <span>{{ scope.row.personalInformation.name }}</span>
+        </template>
+      </el-table-column>
+
+      <el-table-column align="center" label="申请额度(元)">
+        <template slot-scope="scope">
+          <template v-if="scope.row.amount">
+            <span>{{ scope.row.amount }}</span>
+          </template>
+          <template v-else>
+            <span>-</span>
+          </template>
+        </template>
+      </el-table-column>
+
+      <el-table-column align="center" label="申请期限">
+        <template slot-scope="scope">
+          <template v-if="scope.row.deadline">
+            <span>{{ scope.row.deadline }}个月</span>
+          </template>
+          <template v-else>
+            <span>-</span>
+          </template>
         </template>
       </el-table-column>
 
@@ -37,7 +70,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="身份证号">
+      <el-table-column align="center" label="身份证号" width="150">
         <template slot-scope="scope">
           <span>{{ scope.row.personalInformation.identityNumber }}</span>
         </template>
@@ -52,12 +85,6 @@
       <el-table-column align="center" label="身份证反面照">
         <template slot-scope="scope">
           <viewer :img-src="'data:' + scope.row.personalInformation.idCardBackPhotoContentType + ';base64,' + scope.row.personalInformation.idCardBackPhoto"/>
-        </template>
-      </el-table-column>
-
-      <el-table-column align="center" label="代理商姓名" width="120">
-        <template slot-scope="scope">
-          <span>{{ scope.row.user.firstName }}</span>
         </template>
       </el-table-column>
 
@@ -180,7 +207,8 @@ export default {
       listQuery: {
         page: 1,
         pageSize: 10,
-        status: 'PENDINGREVIEW'
+        status: 'PENDINGREVIEW',
+        user: ''
       },
       showMask: false,
       showReasonMask: false,
@@ -221,6 +249,9 @@ export default {
       }
       if (this.listQuery.status) {
         data.auditStatus = this.listQuery.status
+      }
+      if (this.listQuery.user) {
+        data.user = this.listQuery.user
       }
       getAudits(data).then(response => {
         if (response.status !== 200) return
