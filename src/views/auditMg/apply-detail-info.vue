@@ -1,7 +1,41 @@
 <template>
   <div class="detail-info__wrapper">
-    <!-- 基本资料 -->
+    <!--  申请信息 -->
     <el-card class="box-card" shadow="none">
+      <div slot="header" class="clearfix">
+        <span>申请信息</span>
+      </div>
+      <div class="text item">
+        <el-row :gutter="20">
+          <el-col :span="6">
+            <strong>产品名: </strong>
+            <span>{{ data.product.title }}</span>
+          </el-col>
+          <el-col :span="6">
+            <strong>申请额度: </strong>
+            <span>{{ data.amount}}元</span>
+          </el-col>
+          <el-col :span="6">
+            <strong>申请期限: </strong>
+            <span>{{ data.deadline }}个月</span>
+          </el-col>
+        </el-row>
+        <template v-if="data.finalAmount">
+          <el-row :gutter="20">
+            <el-col :span="6">
+              <strong>终审额度: </strong>
+              <span style="color:#F56C6C">{{ data.finalAmount }}</span>元
+            </el-col>
+            <el-col :span="6">
+              <strong>终审期限: </strong>
+              <span style="color:#F56C6C">{{ data.finalDeadline}}</span>个月
+            </el-col>
+          </el-row>
+        </template>
+      </div>
+    </el-card>
+    <!-- 基本资料 -->
+    <el-card class="box-card" shadow="none" style="margin-top: 20px">
       <div slot="header" class="clearfix">
         <span>基本信息</span>
       </div>
