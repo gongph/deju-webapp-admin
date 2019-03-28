@@ -98,3 +98,11 @@
     }
   }
 }
+
+// 产品编辑弹框样式修改
+.product-edit__dialog {
+  .el-dialog__body {
+    height: 600px;
+    overflow-y: auto;
+  }
+}

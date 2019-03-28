@@ -97,13 +97,26 @@
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="操作" width="100">
+      <el-table-column align="center" label="操作" width="100" fixed="right">
         <template slot-scope="scope">
-          <el-button type="primary" class="edit-btn" size="small" icon="el-icon-edit">编辑</el-button>
+          <el-button type="primary" class="edit-btn" size="small" icon="el-icon-edit" @click="handleEdit(scope.row)">编辑</el-button>
         </template>
       </el-table-column>
     </el-table>
     <!-- <pagination v-show="total>0" :total="total" :page.sync="listQuery.page" :limit.sync="listQuery.limit" @pagination="getList" /> -->
+
+    <!-- 编辑产品弹框 -->
+    <el-dialog
+      v-if="showMask"
+      :visible.sync="showMask"
+      title="编辑产品"
+      top="5vh"
+      class="product-edit__dialog"
+      @close="handleClose"
+    >
+      <add-page :form-data="curProd" button-text="编辑"/>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -111,9 +124,10 @@
 import * as Api from '@/api/product'
 import { types } from '@/utils/loan.js'
 // import Pagination from '@/components/Pagination'
+import AddPage from './add.vue'
 export default {
   name: 'ProductList',
-  // components: { Pagination },
+  components: { AddPage },
   data() {
     return {
       list: [],
@@ -122,11 +136,20 @@ export default {
       listQuery: {
         page: 1,
         limit: 10
-      }
+      },
+      showMask: false,
+      curProd: null
     }
   },
   created() {
     this.getList()
+
+    // 监听一个保存成功的回调
+    // 用于修改产品后触发列表刷新
+    this.$on('saveNotify', (flag) => {
+      this.showMask = false
+      if (flag) this.getList()
+    })
   },
   methods: {
     getList() {
@@ -143,6 +166,13 @@ export default {
     handleCurrentChange(val) {
       this.listQuery.page = val
       this.getList()
+    },
+    handleEdit(row) {
+      this.showMask = true
+      this.curProd = row
+    },
+    handleClose() {
+      this.curProd = null
     },
     formatType(val) {
       return types.get(val)

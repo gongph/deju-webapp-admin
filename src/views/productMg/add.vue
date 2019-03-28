@@ -23,7 +23,7 @@
         </el-form-item>
 
         <el-form-item label="额度范围:">
-          <el-col :span="5">
+          <el-col :span="6">
             <el-form-item prop="loanRangeStart">
               <el-input v-model="ruleForm.loanRangeStart" placeholder="最小额度">
                 <template slot="append">元</template>
@@ -31,7 +31,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="2" class="line">—</el-col>
-          <el-col :span="5">
+          <el-col :span="6">
             <el-form-item prop="loanRangeEnd">
               <el-input v-model="ruleForm.loanRangeEnd" placeholder="最大额度">
                 <template slot="append">元</template>
@@ -41,7 +41,7 @@
         </el-form-item>
 
         <el-form-item label="利率范围:">
-          <el-col :span="5">
+          <el-col :span="6">
             <el-form-item prop="interestRateRangeStart">
               <el-input v-model="ruleForm.interestRateRangeStart" placeholder="最小利率">
                 <template slot="append">%</template>
@@ -49,7 +49,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="2" class="line">—</el-col>
-          <el-col :span="5">
+          <el-col :span="6">
             <el-form-item prop="interestRateRangeEnd">
               <el-input v-model="ruleForm.interestRateRangeEnd" placeholder="最大利率">
                 <template slot="append">%</template>
@@ -59,7 +59,7 @@
         </el-form-item>
 
         <el-form-item label="期限范围:">
-          <el-col :span="5">
+          <el-col :span="6">
             <el-form-item prop="termRangeStart">
               <el-input v-model="ruleForm.termRangeStart" placeholder="最小期限">
                 <template slot="append">月</template>
@@ -67,7 +67,7 @@
             </el-form-item>
           </el-col>
           <el-col :span="2" class="line">—</el-col>
-          <el-col :span="5">
+          <el-col :span="6">
             <el-form-item prop="termRangeEnd">
               <el-input v-model="ruleForm.termRangeEnd" placeholder="最大期限">
                 <template slot="append">月</template>
@@ -133,7 +133,7 @@
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" @click="submitForm('ruleForm')">立即添加</el-button>
+          <el-button type="primary" @click="submitForm('ruleForm')">立即{{ buttonText }}</el-button>
           <el-button @click="resetForm('ruleForm')">重置</el-button>
         </el-form-item>
 
@@ -143,8 +143,21 @@
 </template>
 
 <script>
-import { addProduct } from '@/api/product'
+import { saveOrUpdate } from '@/api/product'
+import { deepClone } from '@/utils'
+
 export default {
+  name: 'AddOrEditProductPage',
+  props: {
+    formData: {
+      type: Object,
+      default: null
+    },
+    buttonText: {
+      type: String,
+      default: '添加'
+    }
+  },
   data() {
     return {
       loanTypes: [{
@@ -152,6 +165,7 @@ export default {
         value: 'SMALLMICROLOAN'
       }],
       ruleForm: {
+        id: 0,
         title: '',
         description: '',
         icon: '',
@@ -196,18 +210,37 @@ export default {
       }
     }
   },
+  created() {
+    if (this.formData) this.ruleForm = deepClone(this.formData)
+  },
   methods: {
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          addProduct(this.ruleForm).then(response => {
-            if (response.status === 201) {
+
+          // 检查当前是新增还是保存
+          let method = 'post'
+          if (this.ruleForm.id || this.buttonText === '编辑') {
+            method = 'put'
+          }
+
+          // 新增或保存操作
+          saveOrUpdate(this.ruleForm, method).then(response => {
+            if (response.status === 201 || response.status === 200) {
               this.$message({
-                message: '添加产品成功！',
+                message: `${this.buttonText}产品成功！`,
                 type: 'success'
               })
-              // 重置表单
-              this.resetForm(formName)
+
+              // 产品列表组件
+              let productIndexComp = this.$parent.$parent
+              if (this.buttonText === '编辑' || productIndexComp.$options.name === 'ProductList') {
+                // 通知父组件中的监听回调方法
+                productIndexComp.$emit('saveNotify', true)
+              } else {
+                // 新增完重置表单
+                this.resetForm(formName)
+              }
             }
           }).catch(err => {
             console.error(err)
@@ -245,12 +278,12 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-  .width-50p {
-    width: 50%;
-  }
-  .form-wrapper {
-    width: 50%;
-  }
+  // .width-50p {
+  //   width: 50%;
+  // }
+  // .form-wrapper {
+  //   width: 50%;
+  // }
   .line {
     text-align: center;
   }

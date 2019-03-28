@@ -16,13 +16,13 @@ export function getList(query) {
 }
 
 /**
- * 新增产品
+ * 新增或更新产品
  */
 
-export function addProduct(data) {
+export function saveOrUpdate(data, method = 'post') {
   return request({
     url: '/api/products',
-    method: 'post',
+    method,
     data
   })
 }
