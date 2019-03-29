@@ -26,6 +26,7 @@ export default {
       const viewer = new Viewer(evt.target, {
         title: false,
         navbar: false,
+        zIndex: 9999,
         toolbar: {
           zoomIn: 4,
           zoomOut: 4,
