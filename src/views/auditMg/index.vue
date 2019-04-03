@@ -379,8 +379,8 @@ export default {
      */
     handleCommand(command) {
       const flag = command[0]
-      this.rowData = deepClone(command[1])
-      const auditStatus = this.rowData.auditStatus
+      const row = this.rowData = deepClone(command[1])
+      const auditStatus = row.auditStatus
       const status = this.formatAuditStatus(auditStatus)
       
       // 通过操作
@@ -414,7 +414,7 @@ export default {
           this.rowData.auditStatus = CONST.FIRSTFAIL
           this.rowData.auditReason = ''
         } else if (status === '初审通过' || status === '初审失败') {
-          this.rowData.auditStatus = CONST.FINALTRIALFAILURE
+          this.rowData.auditStatus = CONST.FINALFAIL
           this.rowData.auditReason = ''
         }
         this.showReasonMask = true
