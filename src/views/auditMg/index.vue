@@ -201,8 +201,26 @@
       @close="resetFinalForm('finalForm')"
     >
       <el-form ref="finalForm" :model="finalForm" :rules="finalFormRule" label-width="92px">
+        <el-form-item label="产品名称:">
+          <el-input :value="rowData.product.title" style="width: 199px;" disabled/>
+        </el-form-item>
+        <el-form-item label="额度范围:">
+          <el-input :value="rowData.product.loanRangeStart + '-' + rowData.product.loanRangeEnd" style="width: 199px;" disabled>
+            <svg-icon icon-class="rmb" slot="suffix"/>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="申请额度:">
+          <el-input :value="rowData.amount" style="width: 199px;" disabled>
+            <svg-icon icon-class="rmb" slot="suffix"/>
+          </el-input>
+        </el-form-item>
+        <el-form-item label="申请期限:">
+          <el-input :value="rowData.deadline + '个月'" style="width: 199px;" disabled/>
+        </el-form-item>
         <el-form-item label="终审额度:">
-          <el-input v-model="finalForm.amount" placeholder="请输入终审额度" style="width: 199px;"/>
+          <el-input v-model="finalForm.amount" placeholder="请输入终审额度" style="width: 199px;">
+            <svg-icon icon-class="rmb" slot="suffix"/>
+          </el-input>
         </el-form-item>
         <el-form-item label="终审期限:" >
           <el-select v-model="finalForm.deadline" placeholder="请选择">
