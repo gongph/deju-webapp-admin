@@ -48,8 +48,8 @@
 
       <el-table-column align="center" label="图标" width="80">
         <template slot-scope="scope">
-          <template v-if="scope.row.icon">
-            <img :src="'data:image/png;base64,' + scope.row.icon" :alt="scope.row.title" width="50px;">
+          <template v-if="scope.row.iconUrl">
+            <img :src="'http://th.minio.boyuanziben.cn' + scope.row.iconUrl" :alt="scope.row.title" width="50px;">
           </template>
           <template v-else>-</template>
         </template>
@@ -91,7 +91,7 @@
         </template>
       </el-table-column>
 
-       <el-table-column align="center" label="创建时间">
+      <el-table-column align="center" label="创建时间">
         <template slot-scope="scope">
           <span>{{ scope.row.createdDate | parseTime('{y}-{m}-{d} {h}:{i}:{s}') }}</span>
         </template>

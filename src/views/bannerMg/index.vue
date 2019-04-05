@@ -32,8 +32,8 @@
 
       <el-table-column align="center" label="图片">
         <template slot-scope="scope">
-          <template v-if="scope.row.url">
-            <img :src="'data:' + scope.row.urlContentType + ';base64,' + scope.row.url" :alt="scope.row.description" width="50px;">
+          <template v-if="scope.row.contentUrl">
+            <img :src="'http://th.minio.boyuanziben.cn' + scope.row.contentUrl" :alt="scope.row.description" width="50px;">
           </template>
           <template v-else>-</template>
         </template>
