@@ -19,7 +19,7 @@ export function getList() {
  */
 export function getAudits(query) {
   return request({
-    url: '/api/application-infos',
+    url: '/api/v3/application-infos',
     method: 'get',
     params: query
   })

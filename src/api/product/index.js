@@ -9,7 +9,7 @@ import request from '@/utils/request'
  */
 export function getList(query) {
   return request({
-    url: '/api/products',
+    url: '/api/v3/products',
     method: 'get',
     params: query
   })
@@ -21,7 +21,7 @@ export function getList(query) {
 
 export function saveOrUpdate(data, method = 'post') {
   return request({
-    url: '/api/products',
+    url: '/api/v3/products',
     method,
     data
   })
@@ -32,7 +32,7 @@ export function saveOrUpdate(data, method = 'post') {
  */
 export function getAudits(query) {
   return request({
-    url: '/api/application-infos',
+    url: '/api/v3/application-infos',
     method: 'get',
     params: query
   })
@@ -44,7 +44,7 @@ export function getAudits(query) {
  */
 export function updateAudits(data) {
   return request({
-    url: '/api/application-infos',
+    url: '/api/v3/application-infos',
     method: 'put',
     data
   })
