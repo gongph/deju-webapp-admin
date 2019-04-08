@@ -78,13 +78,13 @@
 
       <el-table-column align="center" label="身份证正面照">
         <template slot-scope="scope">
-          <viewer :img-src="'http://th.minio.boyuanziben.cn' + scope.row.personalInformation.idCardFrontPhotoUrl"/>
+          <img :src="'http://th.minio.boyuanziben.cn' + scope.row.personalInformation.idCardFrontPhotoUrl + '_50x50'">
         </template>
       </el-table-column>
 
       <el-table-column align="center" label="身份证反面照">
         <template slot-scope="scope">
-          <viewer :img-src="'http://th.minio.boyuanziben.cn' + scope.row.personalInformation.idCardBackPhotoUrl"/>
+          <img :src="'http://th.minio.boyuanziben.cn' + scope.row.personalInformation.idCardBackPhotoUrl + '_50x50'">
         </template>
       </el-table-column>
 

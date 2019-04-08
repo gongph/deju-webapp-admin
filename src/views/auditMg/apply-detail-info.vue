@@ -13,7 +13,7 @@
           </el-col>
           <el-col :span="6">
             <strong>申请额度: </strong>
-            <span>{{ data.amount}}元</span>
+            <span>{{ data.amount }}元</span>
           </el-col>
           <el-col :span="6">
             <strong>申请期限: </strong>
@@ -28,7 +28,7 @@
             </el-col>
             <el-col :span="6">
               <strong>终审期限: </strong>
-              <span style="color:#F56C6C">{{ data.finalDeadline}}</span>个月
+              <span style="color:#F56C6C">{{ data.finalDeadline }}</span>个月
             </el-col>
           </el-row>
         </template>
@@ -63,15 +63,13 @@
           <el-col :span="6">
             <p><strong>身份证正面照: </strong></p>
             <viewer
-              :img-src="'data:' + data.personalInformation.idCardFrontPhotoContentType + ';base64,' + data.personalInformation.idCardFrontPhoto">
-            </viewer>
+              :img-src="'http://th.minio.boyuanziben.cn' + data.personalInformation.idCardFrontPhotoUrl"/>
           </el-col>
           <el-col :span="6">
             <p><strong>身份证反面照: </strong></p>
             <viewer
-              :img-src="'data:' + data.personalInformation.idCardBackPhotoContentType + ';base64,' + data.personalInformation.idCardBackPhoto"
-              style="width: 50px;">
-            </viewer>
+              :img-src="'http://th.minio.boyuanziben.cn' + data.personalInformation.idCardBackPhotoUrl"
+              style="width: 50px;"/>
           </el-col>
         </el-row>
       </div>
@@ -173,34 +171,31 @@
         <el-row :gutter="20">
           <el-col :span="6">
             <p><strong>工作证明照片: </strong></p>
-            <template v-if="data.personalInformation.workNamePhoto">
+            <template v-if="data.personalInformation.workNamePhotoUrl">
               <viewer
-                :img-src="'data:' + data.personalInformation.workNamePhotoContentType + ';base64,' + data.personalInformation.workNamePhoto">
-              </viewer>
+                :img-src="'http://th.minio.boyuanziben.cn' + data.personalInformation.workNamePhotoUrl "/>
             </template>
             <template v-else>
               <span>(无)</span>
             </template>
-            
+
           </el-col>
           <el-col :span="6">
             <p><strong>营业执照: </strong></p>
-            <template v-if="data.personalInformation.businessLicensePhoto">
+            <template v-if="data.personalInformation.businessLicensePhotoUrl">
               <viewer
-                :img-src="'data:' + data.personalInformation.businessLicensePhotoContentType + ';base64,' + data.personalInformation.businessLicensePhoto">
-              </viewer>
+                :img-src="'http://th.minio.boyuanziben.cn' + data.personalInformation.businessLicensePhotoUrl"/>
             </template>
             <template v-else>
               <span>(无)</span>
             </template>
-            
+
           </el-col>
           <el-col :span="6">
             <p><strong>房产证明或房本: </strong></p>
-            <template v-if="data.personalInformation.proofOfRealEstate">
+            <template v-if="data.personalInformation.proofOfRealEstateUrl">
               <viewer
-                :img-src="'data:' + data.personalInformation.proofOfRealEstateContentType + ';base64,' + data.personalInformation.proofOfRealEstate">
-              </viewer>
+                :img-src="'http://th.minio.boyuanziben.cn' + data.personalInformation.proofOfRealEstateUrl"/>
             </template>
             <template v-else>
               <span>(无)</span>
@@ -208,10 +203,9 @@
           </el-col>
           <el-col :span="6">
             <p><strong>购房网签合同: </strong></p>
-            <template v-if="data.personalInformation.purchaseAHouseNetworkContract">
+            <template v-if="data.personalInformation.purchaseAHouseNetworkContractUrl">
               <viewer
-                :img-src="'data:' + data.personalInformation.purchaseAHouseNetworkContractContentType + ';base64,' + data.personalInformation.purchaseAHouseNetworkContract">
-              </viewer>
+                :img-src="'http://th.minio.boyuanziben.cn' + data.personalInformation.purchaseAHouseNetworkContractUrl"/>
             </template>
             <template v-else>
               <span>(无)</span>
@@ -219,10 +213,9 @@
           </el-col>
           <el-col :span="6">
             <p><strong>其他材料: </strong></p>
-            <template v-if="data.personalInformation.otherPhoto">
+            <template v-if="data.personalInformation.otherPhotoUrl">
               <viewer
-                :img-src="'data:' + data.personalInformation.otherPhotoContentType + ';base64,' + data.personalInformation.otherPhoto">
-              </viewer>
+                :img-src="'http://th.minio.boyuanziben.cn' + data.personalInformation.otherPhotoUrl"/>
             </template>
             <template v-else>
               <span>(无)</span>
