@@ -93,6 +93,11 @@
           <span>{{ formatAuditStatus(scope.row.auditStatus) }}</span>
         </template>
       </el-table-column>
+      <el-table-column align="center" label="详细资料录入情况" width="120">
+        <template slot-scope="scope">
+          <span>{{ formatOrderStatus(scope.row.orderStatus) }}</span>
+        </template>
+      </el-table-column>
 
       <el-table-column align="center" label="审核原因">
         <template slot-scope="scope">
@@ -248,6 +253,7 @@ import Pagination from '@/components/Pagination'
 import Viewer from '@/components/Viewer'
 import ApplyDetailInfo from './apply-detail-info.vue'
 import { auditStatus } from '@/utils/auditStatus.js'
+import { orderStatus } from '@/utils/orderStatus.js'
 import { deepClone } from '@/utils'
 
 const CONST = {
@@ -330,7 +336,7 @@ export default {
       const data = {
         page: this.listQuery.page - 1,
         size: this.listQuery.pageSize,
-        sort: 'lastModifiedDate,desc'
+        sort: 'orderStatus,desc'
       }
       if (this.listQuery.status) {
         data.auditStatus = this.listQuery.status
@@ -421,6 +427,7 @@ export default {
     },
     handleAudit(cb) {
       let status = false
+      this.rowData.orderStatus = 'pended'
       updateAudits(this.rowData).then(response => {
         if (response.status === 200) {
           this.$message({
@@ -478,6 +485,9 @@ export default {
     },
     formatAuditStatus(val) {
       return auditStatus.get(val)
+    },
+    formatOrderStatus(val) {
+      return orderStatus.get(val)
     }
   }
 }
