@@ -336,7 +336,7 @@ export default {
       const data = {
         page: this.listQuery.page - 1,
         size: this.listQuery.pageSize,
-        sort: 'orderStatus,desc'
+        sort: ['orderStatus,desc', 'lastModifiedDate,desc']
       }
       if (this.listQuery.status) {
         data.auditStatus = this.listQuery.status
