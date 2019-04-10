@@ -42,7 +42,15 @@
       <el-table-column align="center" label="操作" >
         <template slot-scope="scope">
           <!-- <el-button type="primary" class="edit-btn" size="small" icon="el-icon-edit" disabled>编辑</el-button> -->
-          <el-button type="danger" class="delete-btn" size="small" icon="el-icon-delete">删除</el-button>
+          <el-button
+            type="danger"
+            class="delete-btn"
+            size="small"
+            icon="el-icon-delete"
+            @click="onDelete(scope.row)"
+          >
+            删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -54,6 +62,7 @@
 import * as Api from '@/api/banner'
 import Viewer from '@/components/Viewer'
 import config from '@/utils/config.js'
+import { removeRemoteImage } from '@/utils/file-uploader.js'
 // import Pagination from '@/components/Pagination'
 export default {
   name: 'BannerList',
@@ -88,6 +97,41 @@ export default {
     handleCurrentChange(val) {
       this.listQuery.page = val
       this.getList()
+    },
+    onDelete(row) {
+      this.$confirm('确定要删除吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.removeImageFromMinio(row.contentUrl).then(() => {
+          console.log(`Remove remote image successed!`)
+          this.handleDelete(row.id).then(response => {
+            if (response && response.status === 200) {
+              this.$message({
+                message: '删除成功！',
+                type: 'success'
+              })
+              this.getList()
+            }
+          })
+          .catch(err => {
+            console.error(err)
+          })
+        })
+      }).catch(() => {
+        // Do nothing      
+      })
+    },
+    /**
+     * 删除Minio 服务器上的图片
+     */
+    removeImageFromMinio(url) {
+      const fileName = url.split('/')[2]
+      return removeRemoteImage('banner', fileName)
+    },
+    handleDelete(id) {
+      return Api.deleteById(id)
     }
   }
 }

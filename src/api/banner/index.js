@@ -33,8 +33,7 @@ export function saveOrUpdate(data, method = 'post') {
 
 export function deleteById(id) {
   return request({
-    url: '/api/v3/banners',
-    method: 'delete',
-    params: id
+    url: `/api/v3/banners/${id}`,
+    method: 'delete'
   })
 }
