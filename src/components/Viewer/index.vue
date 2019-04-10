@@ -12,7 +12,16 @@ export default {
   name: 'Viewer',
   props: {
     imgSrc: String,
-    width: Number
+    width: Number,
+    zoom: {
+      type: Number,
+      default: 0.3
+    }
+  },
+  data() {
+    return {
+      prevTarget: null
+    }
   },
   computed: {
     styleClass() {
@@ -23,6 +32,7 @@ export default {
   },
   methods: {
     click(evt) {
+      const vm = this
       const viewer = new Viewer(evt.target, {
         title: false,
         navbar: false,
@@ -44,11 +54,17 @@ export default {
           flipVertical: 4,
         },
         viewed() {
-          viewer.zoomTo(0.3)
+          viewer.zoomTo(this.zoom)
+        },
+        hide() {
+          viewer.destroy()
         }
       })
       viewer.show(true)
     }
+  },
+  beforeDestory() {
+    console.log('coming...')
   }
 }
 </script>
