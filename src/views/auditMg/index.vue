@@ -78,13 +78,13 @@
 
       <el-table-column align="center" label="身份证正面照">
         <template slot-scope="scope">
-          <img :src="'http://th.minio.boyuanziben.cn' + scope.row.personalInformation.idCardFrontPhotoUrl + '_50x50'">
+          <img :src="baseImgUrl + scope.row.personalInformation.idCardFrontPhotoUrl + '_50x50'">
         </template>
       </el-table-column>
 
       <el-table-column align="center" label="身份证反面照">
         <template slot-scope="scope">
-          <img :src="'http://th.minio.boyuanziben.cn' + scope.row.personalInformation.idCardBackPhotoUrl + '_50x50'">
+          <img :src="baseImgUrl + scope.row.personalInformation.idCardBackPhotoUrl + '_50x50'">
         </template>
       </el-table-column>
 
@@ -255,6 +255,7 @@ import ApplyDetailInfo from './apply-detail-info.vue'
 import { auditStatus } from '@/utils/auditStatus.js'
 import { orderStatus } from '@/utils/orderStatus.js'
 import { deepClone } from '@/utils'
+import config from '@/utils/config'
 
 const CONST = {
   PENDING: 'PENDINGREVIEW', // 待审核
@@ -315,8 +316,8 @@ export default {
       // 详细信息
       moreInfo: null,
       // 当前行数据
-      rowData: null
-      // 审核阶段表示
+      rowData: null,
+      baseImgUrl: config.baseImgUrl
     }
   },
   computed: {
