@@ -11,7 +11,7 @@
         </el-form-item>
 
         <el-form-item label="图标:">
-          <el-button type="primary" size="small" icon="el-icon-upload" @click="uploadIcon">上传图标</el-button>
+          <!-- <el-button type="primary" size="small" icon="el-icon-upload" @click="uploadIcon">上传图标</el-button>
           <input id="file" type="file" style="display: none;">
           <el-popover
             v-if="ruleForm.icon"
@@ -19,7 +19,28 @@
             trigger="click">
             <img :src="'data:image/png;base64,' + ruleForm.icon" style="max-width: 50px;">
             <el-button slot="reference" type="text">预览</el-button>
-          </el-popover>
+          </el-popover> -->
+          <el-upload
+            action="string"
+            accept=".jpeg,.jpg,png"
+            list-type="picture"
+            :multiple="false"
+            :show-file-list="showFileList"
+            :file-list="ruleForm.iconUrl ? [{ name: ruleForm.iconUrl.split('/')[2], url: baseImgUrl + ruleForm.iconUrl }] : []"
+            :limit="1"
+            :http-request="uploadSectionFile"
+            :on-remove="removeImage"
+            :before-upload="beforeUpload"
+          >
+            <el-button
+              size="small"
+              type="primary"
+              :disabled="ruleForm.iconUrl ? true : false"
+            >
+              <i :class="'el-icon-' + (uploading ? 'loading' : 'upload')"></i>  点击上传
+            </el-button>
+            <div slot="tip" class="el-upload__tip">只能上传jpg/jpeg/png格式的文件哦~</div>
+          </el-upload>
         </el-form-item>
 
         <el-form-item label="额度范围:">
@@ -145,6 +166,8 @@
 <script>
 import { saveOrUpdate } from '@/api/product'
 import { deepClone } from '@/utils'
+import config from '@/utils/config.js'
+import { uploader, removeRemoteImage } from '@/utils/file-uploader.js'
 
 export default {
   name: 'AddOrEditProductPage',
@@ -165,9 +188,9 @@ export default {
         value: 'SMALLMICROLOAN'
       }],
       ruleForm: {
-        id: 0,
         title: '',
         description: '',
+        iconUrl: '',
         icon: '',
         iconContentType: '',
         // 额度范围
@@ -207,13 +230,57 @@ export default {
         applicationInformation: [
           { required: true, message: '必填项', trigger: 'blur' }
         ]
-      }
+      },
+      uploading: false,
+      showFileList: true,
+      baseImgUrl: config.baseImgUrl,
     }
   },
   created() {
     if (this.formData) this.ruleForm = deepClone(this.formData)
   },
   methods: {
+    beforeUpload(file) {
+      if (!file) return false
+
+      const ext = /\.[^\.]+$/.exec(file.name)[0]
+
+      if (!/\.(jpe?g|png)/.test(ext)) {
+        this.showFileList = false
+        this.$message({
+          message: '只允许上传 jpg/jpeg/png 格式的图片哦~',
+          type: 'warning'
+        })
+        return false
+      }
+    },
+    /**
+     * 新版上传方法
+     */
+    uploadSectionFile(data) {
+      this.uploading = true
+      uploader('product', data.file).then(response => {
+        this.uploading = false
+        const { bucketName, fileName } = response
+        this.ruleForm.iconUrl = `/${bucketName}/${fileName}`
+      })
+      .catch(err => {
+        this.uploading = false
+        console.error(err)
+      })
+    },
+    /**
+     * 删除图片
+     */
+    removeImage(file) {
+      const url = this.ruleForm.iconUrl
+      const fileName = url.split('/')[2]
+      removeRemoteImage('product', fileName).then(() => {
+        console.log(`Remove image '${fileName}' successed!`)
+        this.ruleForm.iconUrl = ''
+        this.showFileList = false
+      })
+    },
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
@@ -240,6 +307,10 @@ export default {
               } else {
                 // 新增完重置表单
                 this.resetForm(formName)
+                // 跳转到列表
+                this.$router.push({
+                  name: 'ProductList'
+                })
               }
             }
           }).catch(err => {

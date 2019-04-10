@@ -28,6 +28,17 @@ export function saveOrUpdate(data, method = 'post') {
 }
 
 /**
+ * 删除产品
+ */
+
+export function deleteProductById(id) {
+  return request({
+    url: `/api/v3/products/${id}`,
+    method: 'delete'
+  })
+}
+
+/**
  * 获取审核列表
  */
 export function getAudits(query) {

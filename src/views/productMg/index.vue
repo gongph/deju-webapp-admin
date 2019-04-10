@@ -97,9 +97,10 @@
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="操作" width="100" fixed="right">
+      <el-table-column align="center" label="操作" width="200" fixed="right">
         <template slot-scope="scope">
           <el-button type="primary" class="edit-btn" size="small" icon="el-icon-edit" @click="handleEdit(scope.row)">编辑</el-button>
+          <el-button type="danger" class="delete-btn" size="small" icon="el-icon-delete" @click="handleDelete(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -125,6 +126,7 @@ import * as Api from '@/api/product'
 import { types } from '@/utils/loan.js'
 // import Pagination from '@/components/Pagination'
 import AddPage from './add.vue'
+import { removeRemoteImage } from '@/utils/file-uploader.js'
 export default {
   name: 'ProductList',
   components: { AddPage },
@@ -140,6 +142,11 @@ export default {
       showMask: false,
       curProd: null
     }
+  },
+  beforeRouteEnter (to, from, next) {
+    next(vm => {
+      vm.getList()
+    })
   },
   created() {
     this.getList()
@@ -176,6 +183,44 @@ export default {
     },
     formatType(val) {
       return types.get(val)
+    },
+    handleDelete(row) {
+      this.$confirm('确定要删除吗?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        if (row.iconUrl) {
+          this.removeImageFromMinio(row.iconUrl).then(() => {
+            console.log(`Remove remote image successed!`)
+          })
+        }
+        this.doDelete(row.id).then(response => {
+          if (response && response.status === 200) {
+            this.$message({
+              message: '删除成功！',
+              type: 'success'
+            })
+            this.getList()
+          }
+        })
+        .catch(err => {
+          console.error(err)
+        })
+        
+      }).catch(() => {
+        // Do nothing      
+      })
+    },
+    /**
+     * 删除Minio 服务器上的图片
+     */
+    removeImageFromMinio(url) {
+      const fileName = url ? url.split('/')[2] : ''
+      return removeRemoteImage('product', fileName)
+    },
+    doDelete(id) {
+      return Api.deleteProductById(id)
     }
   }
 }

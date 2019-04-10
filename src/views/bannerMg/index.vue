@@ -104,21 +104,25 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
-        this.removeImageFromMinio(row.contentUrl).then(() => {
-          console.log(`Remove remote image successed!`)
-          this.handleDelete(row.id).then(response => {
-            if (response && response.status === 200) {
-              this.$message({
-                message: '删除成功！',
-                type: 'success'
-              })
-              this.getList()
-            }
+        if (row.contentUrl) {
+          this.removeImageFromMinio(row.contentUrl).then(() => {
+            console.log(`Remove remote image successed!`)
           })
-          .catch(err => {
-            console.error(err)
-          })
+        }
+
+        this.handleDelete(row.id).then(response => {
+          if (response && response.status === 200) {
+            this.$message({
+              message: '删除成功！',
+              type: 'success'
+            })
+            this.getList()
+          }
         })
+        .catch(err => {
+          console.error(err)
+        })
+        
       }).catch(() => {
         // Do nothing      
       })
@@ -127,7 +131,7 @@ export default {
      * 删除Minio 服务器上的图片
      */
     removeImageFromMinio(url) {
-      const fileName = url.split('/')[2]
+      const fileName = url ? url.split('/')[2] : ''
       return removeRemoteImage('banner', fileName)
     },
     handleDelete(id) {
