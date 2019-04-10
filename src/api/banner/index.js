@@ -19,10 +19,10 @@ export function getList(query) {
  * 注册Banner
  */
 
-export function add(data) {
+export function saveOrUpdate(data, method = 'post') {
   return request({
     url: '/api/v3/banners',
-    method: 'post',
+    method,
     data
   })
 }
@@ -31,10 +31,10 @@ export function add(data) {
  * 修改Banner
  */
 
-export function update(data) {
+export function deleteById(id) {
   return request({
     url: '/api/v3/banners',
-    method: 'put',
-    data
+    method: 'delete',
+    params: id
   })
 }

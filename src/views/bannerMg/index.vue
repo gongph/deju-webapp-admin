@@ -33,7 +33,7 @@
       <el-table-column align="center" label="图片">
         <template slot-scope="scope">
           <template v-if="scope.row.contentUrl">
-            <img :src="'http://th.minio.boyuanziben.cn' + scope.row.contentUrl" :alt="scope.row.description" width="50px;">
+            <viewer :img-src="baseImgUrl + scope.row.contentUrl" :zoom="1"/>
           </template>
           <template v-else>-</template>
         </template>
@@ -41,7 +41,8 @@
 
       <el-table-column align="center" label="操作" >
         <template slot-scope="scope">
-          <el-button type="primary" class="edit-btn" size="small" icon="el-icon-edit" disabled>编辑</el-button>
+          <!-- <el-button type="primary" class="edit-btn" size="small" icon="el-icon-edit" disabled>编辑</el-button> -->
+          <el-button type="danger" class="delete-btn" size="small" icon="el-icon-delete">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -51,10 +52,12 @@
 
 <script>
 import * as Api from '@/api/banner'
+import Viewer from '@/components/Viewer'
+import config from '@/utils/config.js'
 // import Pagination from '@/components/Pagination'
 export default {
   name: 'BannerList',
-  // components: { Pagination },
+  components: { Viewer },
   data() {
     return {
       list: [],
@@ -63,7 +66,8 @@ export default {
       listQuery: {
         page: 1,
         limit: 10
-      }
+      },
+      baseImgUrl: config.baseImgUrl
     }
   },
   created() {

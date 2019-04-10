@@ -11,19 +11,30 @@
         </el-form-item>
 
         <el-form-item label="图片:">
-          <el-button type="primary" size="small" icon="el-icon-upload" @click="uploadIcon">上传图片</el-button>
-          <input id="file" type="file" style="display: none;">
-          <el-popover
-            v-if="ruleForm.url"
-            placement="right"
-            trigger="click">
-            <img :src="'data:' + ruleForm.urlContentType + ';base64,' + ruleForm.url" style="max-width: 50px;">
-            <el-button slot="reference" type="text">预览</el-button>
-          </el-popover>
+          <el-upload
+            action="string"
+            accept=".jpeg,.jpg,png"
+            list-type="picture"
+            :multiple="false"
+            :show-file-list="showFileList"
+            :limit="1"
+            :http-request="uploadSectionFile"
+            :on-remove="removeImage"
+            :before-upload="beforeUpload"
+          >
+            <el-button
+              size="small"
+              type="primary"
+              :disabled="ruleForm.contentUrl ? true : false"
+            >
+              <i :class="'el-icon-' + (uploading ? 'loading' : 'upload')"></i>  点击上传
+            </el-button>
+            <div slot="tip" class="el-upload__tip">只能上传jpg/jpeg/png格式的文件哦~</div>
+          </el-upload>
         </el-form-item>
 
         <el-form-item>
-          <el-button type="primary" @click="submitForm('ruleForm')">立即添加</el-button>
+          <el-button type="primary" @click="submitForm('ruleForm')" :disabled="uploading ? true : false">添加</el-button>
           <el-button @click="resetForm('ruleForm')">重置</el-button>
         </el-form-item>
 
@@ -33,7 +44,8 @@
 </template>
 
 <script>
-import { add } from '@/api/banner'
+import { saveOrUpdate } from '@/api/banner'
+import { uploader, removeRemoteImage } from '@/utils/file-uploader.js'
 export default {
   data() {
     return {
@@ -44,8 +56,7 @@ export default {
       ruleForm: {
         title: '',
         description: '',
-        url: '',
-        urlContentType: ''
+        contentUrl: '',
       },
       rules: {
         title: [
@@ -60,14 +71,57 @@ export default {
         applicationInformation: [
           { required: true, message: '必填项', trigger: 'blur' }
         ]
-      }
+      },
+      uploading: false,
+      showFileList: true
     }
   },
   methods: {
+    beforeUpload(file) {
+      if (!file) return false
+
+      const ext = /\.[^\.]+$/.exec(file.name)[0]
+
+      if (!/\.(jpe?g|png)/.test(ext)) {
+        this.showFileList = false
+        this.$message({
+          message: '只允许上传 jpg/jpeg/png 格式的图片哦~',
+          type: 'warning'
+        })
+        return false
+      }
+    },
+    /**
+     * 新版上传方法
+     */
+    uploadSectionFile(data) {
+      this.uploading = true
+      uploader('banner', data.file).then(response => {
+        this.uploading = false
+        const { bucketName, fileName } = response
+        this.ruleForm.contentUrl = `/${bucketName}/${fileName}`
+      })
+      .catch(err => {
+        this.uploading = false
+        console.error(err)
+      })
+    },
+    /**
+     * 删除图片
+     */
+    removeImage(file) {
+      const url = this.ruleForm.contentUrl
+      const fileName = url.split('/')[2]
+      removeRemoteImage('banner', fileName).then(() => {
+        console.log(`Remove image '${fileName}' successed!`)
+        this.ruleForm.contentUrl = ''
+        this.showFileList = false
+      })
+    },
     submitForm(formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          add(this.ruleForm).then(response => {
+          saveOrUpdate(this.ruleForm).then(response => {
             if (response.status === 201) {
               this.$message({
                 message: '添加展示图成功！',
