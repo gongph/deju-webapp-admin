@@ -78,7 +78,6 @@
 
       <el-table-column align="center" label="身份证正面照">
         <template slot-scope="scope">
-          <!-- <img :src="baseImgUrl + scope.row.personalInformation.idCardFrontPhotoUrl + '_50x50'"> -->
           <image-lazyload :url="baseImgUrl + scope.row.personalInformation.idCardFrontPhotoUrl + '_50x50'"/>
         </template>
       </el-table-column>
