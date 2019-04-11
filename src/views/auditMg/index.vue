@@ -78,13 +78,14 @@
 
       <el-table-column align="center" label="身份证正面照">
         <template slot-scope="scope">
-          <img :src="baseImgUrl + scope.row.personalInformation.idCardFrontPhotoUrl + '_50x50'">
+          <!-- <img :src="baseImgUrl + scope.row.personalInformation.idCardFrontPhotoUrl + '_50x50'"> -->
+          <image-lazyload :url="baseImgUrl + scope.row.personalInformation.idCardFrontPhotoUrl + '_50x50'"/>
         </template>
       </el-table-column>
 
       <el-table-column align="center" label="身份证反面照">
         <template slot-scope="scope">
-          <img :src="baseImgUrl + scope.row.personalInformation.idCardBackPhotoUrl + '_50x50'">
+          <image-lazyload :url="baseImgUrl + scope.row.personalInformation.idCardBackPhotoUrl + '_50x50'"/>
         </template>
       </el-table-column>
 
@@ -251,6 +252,7 @@
 import { getAudits, updateAudits } from '@/api/product'
 import Pagination from '@/components/Pagination'
 import Viewer from '@/components/Viewer'
+import ImageLazyload from './components/ImgLazyload.vue'
 import ApplyDetailInfo from './apply-detail-info.vue'
 import { auditStatus } from '@/utils/auditStatus.js'
 import { orderStatus } from '@/utils/orderStatus.js'
@@ -267,7 +269,7 @@ const CONST = {
 
 export default {
   name: 'AuditList',
-  components: { Viewer, ApplyDetailInfo, Pagination },
+  components: { Viewer, ApplyDetailInfo, Pagination, ImageLazyload },
   directives: {
     shouldHide: {
       inserted: function(el, binding) {
