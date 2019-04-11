@@ -19,32 +19,32 @@
 </template>
 
 <script>
-  export default {
-    name: 'ImageLazyload',
-    props: {
-      url: {
-        type: String,
-        default: ''
-      }
-    },
-    data() {
-      return {
-        imgSrc: '',
-        loadStatus: 'loading'
-      }
-    },
-    created() {
-      let newImg = new Image()
-      newImg.src = this.url
-      newImg.onload = () => {
-        this.loadStatus = 'loaded'
-        this.imgSrc = this.url
-      }
-      newImg.onerror = () => {
-        this.loadStatus = 'error'
-      }
+export default {
+  name: 'ImageLazyload',
+  props: {
+    url: {
+      type: String,
+      default: ''
+    }
+  },
+  data() {
+    return {
+      imgSrc: '',
+      loadStatus: 'loading'
+    }
+  },
+  created() {
+    const newImg = new Image()
+    newImg.src = this.url
+    newImg.onload = () => {
+      this.loadStatus = 'loaded'
+      this.imgSrc = this.url
+    }
+    newImg.onerror = () => {
+      this.loadStatus = 'error'
     }
   }
+}
 </script>
 
 <style lang="scss" scoped>
